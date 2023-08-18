@@ -1,0 +1,1 @@
+Run docker-compose.yml and load mysql.ddl to your mysql.
