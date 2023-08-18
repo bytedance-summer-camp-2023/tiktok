@@ -1,6 +1,6 @@
 version: "3"
 services:
-  db:
+  mysql:
     image: 'mysql:latest'
     restart: always
     container_name: tt-mysql
@@ -22,3 +22,18 @@ services:
 #      - ./redis/logs:/logs
     ports:
       - '6379:6379'
+
+  minio:
+    image: 'minio/minio'
+    container_name: tt-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - "./minio/data1:/data1"
+      - "./minio/data2:/data2"
+    command: server --console-address ":9001" http://minio/data{1...2}
+    environment:
+      MINIO_ACCESS_KEY: "minioadmin"
+      MINIO_SECRET_KEY: "minioadmin"
+
