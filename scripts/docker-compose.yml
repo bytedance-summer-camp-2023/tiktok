@@ -1,11 +1,20 @@
 version: "3"
 services:
+
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: tt-Etcd
+    ports:
+      - 2379:2379
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+
   mysql:
     image: 'mysql:latest'
     restart: always
-    container_name: tt-mysql
+    container_name: tt-db
     volumes:
-      - ./mysql/data:/var/lib/mysql
+      - ./db/data:/var/lib/db
     ports:
       - '3306:3306'
     environment:
@@ -16,12 +25,20 @@ services:
     image: 'redis:latest'
     restart: always
     container_name: tt-redis
+    command: redis-server /etc/redis/redis.conf --appendonly yes --requirepass tiktokRedis
     volumes:
       - ./redis/data:/data
 #      - ./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf # 先新建redis.conf文件再挂载，可从http://www.redis.cn/下载
 #      - ./redis/logs:/logs
+      - /home/redis.conf:/etc/redis/redis.conf
+      - /home/redis/data:/data
     ports:
       - '6379:6379'
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "2"
+
 
   minio:
     image: 'minio/minio'
@@ -32,8 +49,34 @@ services:
     volumes:
       - "./minio/data1:/data1"
       - "./minio/data2:/data2"
+      - /home/minio/data:/data
+      - /home/minio/config:/root/.minio
     command: server --console-address ":9001" http://minio/data{1...2}
     environment:
       MINIO_ACCESS_KEY: "minioadmin"
       MINIO_SECRET_KEY: "minioadmin"
+    restart: always
 
+  rabbitmq:
+    image: rabbitmq:3.11.8-management
+    container_name: tt-rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=tiktokRMQ
+      - RABBITMQ_DEFAULT_PASS=tiktokRMQ
+      - RABBITMQ_DEFAULT_VHOST=tiktokRMQ
+
+  nginx:
+    image: nginx:latest
+    container_name: tt-nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /home/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - /home/nginx/conf/conf.d:/etc/nginx/conf.d
+      - /home/nginx/log:/var/log/nginx
+      - /home/nginx/html:/usr/share/nginx/html
+      - /home/nginx/certs:/usr/share/nginx/
