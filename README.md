@@ -1,5 +1,3 @@
-Run docker-compose.yml and load mysql.ddl to your mysql.
-
 # 目录结构
 ```bash
 |-- cmd

@@ -1,39 +1,57 @@
 version: "3"
 services:
   mysql:
-    image: 'mysql:latest'
-    restart: always
+    image: mysql:latest
     container_name: tt-mysql
     volumes:
       - ./mysql/data:/var/lib/mysql
     ports:
-      - '3306:3306'
+      - 3306:3306
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_ROOT_PASSWORD: root
 
   redis:
-    image: 'redis:latest'
-    restart: always
+    image: redis:latest
     container_name: tt-redis
     volumes:
       - ./redis/data:/data
 #      - ./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf # 先新建redis.conf文件再挂载，可从http://www.redis.cn/下载
 #      - ./redis/logs:/logs
     ports:
-      - '6379:6379'
+      - 6379:6379
 
   minio:
-    image: 'minio/minio'
+    image: minio/minio
     container_name: tt-minio
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - 9000:9000
+      - 9001:9001
     volumes:
-      - "./minio/data1:/data1"
-      - "./minio/data2:/data2"
+      - ./minio/data1:/data1
+      - ./minio/data2:/data2
     command: server --console-address ":9001" http://minio/data{1...2}
     environment:
-      MINIO_ACCESS_KEY: "minioadmin"
-      MINIO_SECRET_KEY: "minioadmin"
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
 
+  etcd:
+    image: bitnami/etcd:latest
+    deploy:
+      replicas: 1
+    container_name: tt-ectd
+    ports:
+      - 2379:2379
+      - 2380:2380
+    privileged: true
+    volumes:
+      - ./etcd/data:/opt/bitnami/etcd/data
+    environment:
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
+      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://0.0.0.0:2380
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_INITIAL_CLUSTER=node1=http://0.0.0.0:2380
+      - ETCD_NAME=node1
+      - ETCD_DATA_DIR=/opt/bitnami/etcd/data
