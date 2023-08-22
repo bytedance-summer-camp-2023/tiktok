@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/cloudwego/hertz/pkg/app"
 	"net/http"
 	"strconv"
@@ -12,12 +13,24 @@ import (
 	kitex "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
 )
 
-// Register 注册
+type UserReq struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// Register 用户注册
 func Register(ctx context.Context, c *app.RequestContext) {
-	username := c.Query("username")
-	password := c.Query("password")
+
+	body, err := c.Body()
+	if err != nil {
+		panic(err)
+	}
+	var p UserReq
+	if err := json.Unmarshal(body, &p); err != nil {
+
+	}
 	//校验参数
-	if len(username) == 0 || len(password) == 0 {
+	if len(p.Username) == 0 || len(p.Password) == 0 {
 		c.JSON(http.StatusBadRequest, response.Register{
 			Base: response.Base{
 				StatusCode: -1,
@@ -26,7 +39,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	if len(username) > 32 || len(password) > 32 {
+	if len(p.Username) > 32 || len(p.Password) > 32 {
 		c.JSON(http.StatusOK, response.Register{
 			Base: response.Base{
 				StatusCode: -1,
@@ -37,11 +50,12 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	}
 	//调用kitex/kitex_gen
 	req := &kitex.UserRegisterRequest{
-		Username: username,
-		Password: password,
+		Username: p.Username,
+		Password: p.Password,
 	}
-	res, _ := rpc.Register(ctx, req)
-	if res.StatusCode == -1 {
+	// 调用rpc user服务进行用户注册
+	res, err := rpc.Register(ctx, req)
+	if err != nil || res.StatusCode == -1 {
 		c.JSON(http.StatusOK, response.Register{
 			Base: response.Base{
 				StatusCode: -1,
@@ -62,10 +76,16 @@ func Register(ctx context.Context, c *app.RequestContext) {
 
 // Login 登录
 func Login(ctx context.Context, c *app.RequestContext) {
-	username := c.Query("username")
-	password := c.Query("password")
+	body, err := c.Body()
+	if err != nil {
+		panic(err)
+	}
+	var p UserReq
+	if err := json.Unmarshal(body, &p); err != nil {
+
+	}
 	//校验参数
-	if len(username) == 0 || len(password) == 0 {
+	if len(p.Username) == 0 || len(p.Password) == 0 {
 		c.JSON(http.StatusBadRequest, response.Login{
 			Base: response.Base{
 				StatusCode: -1,
@@ -76,8 +96,8 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	}
 	//调用kitex/kitex_gen
 	req := &user.UserLoginRequest{
-		Username: username,
-		Password: password,
+		Username: p.Username,
+		Password: p.Password,
 	}
 	res, _ := rpc.Login(ctx, req)
 	if res.StatusCode == -1 {

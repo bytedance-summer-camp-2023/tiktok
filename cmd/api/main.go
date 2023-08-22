@@ -19,9 +19,9 @@ func registerGroup(hz *server.Hertz) {
 	{
 		user := douyin.Group("/user")
 		{
-			user.GET("/", handler.UserInfo)
-			user.POST("/register/", handler.Register)
-			user.POST("/login/", handler.Login)
+			user.GET("/", handler.UserInfo)           //获取用户信息
+			user.POST("/register/", handler.Register) //注册接口
+			user.POST("/login/", handler.Login)       //登陆接口
 		}
 	}
 }

@@ -64,12 +64,12 @@ func init() {
 
 	//TODO 自行添加，&Video{}, &Comment{}, &FavoriteVideoRelation{}, &FollowRelation{}, &Message{}, &FavoriteCommentRelation{}
 	if err := _db.AutoMigrate(&User{}); err != nil {
-		zapLogger.Fatalln(err.Error())
+		zapLogger.Fatalln("autoMigrate err %+v", err)
 	}
 
 	db, err := _db.DB()
 	if err != nil {
-		zapLogger.Fatalln(err.Error())
+		zapLogger.Fatalln("get db err %+v", err)
 	}
 	db.SetMaxOpenConns(1000)
 	db.SetMaxIdleConns(20)
