@@ -23,7 +23,7 @@ func Init(configName string) Config {
 	//读取配置文件
 	if err := v.ReadInConfig(); err != nil {
 		//global.SugarLogger.Fatalf("read config files failed,errors is %+v", err)
-		log.Fatalf("errno is %+v", err)
+		log.Fatalf("read config %s error is %+v", configName, err)
 	}
 	return config
 }
