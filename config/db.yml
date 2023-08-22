@@ -1,6 +1,6 @@
 mysql:
   source: # 主数据库
-    driverName: db.sh
+    driverName: mysql.sh
     host: 127.0.0.1
     port: 3306
     database: db_tiktok
@@ -9,7 +9,7 @@ mysql:
     charset: utf8mb4
 
   replica1: # 从数据库
-    driverName: db.sh
+    driverName: mysql.sh
     host: 127.0.0.1
     port: 3310
     database: db_tiktok
@@ -17,7 +17,7 @@ mysql:
     password: tiktokDB
     charset: utf8mb4
   replica2: # 从数据库
-    driverName: db.sh
+    driverName: mysql.sh
     host: 127.0.0.1
     port: 3308
     database: db_tiktok

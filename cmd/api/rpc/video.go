@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	video "github.com/bytedance-summer-camp-2023/tiktok/kitex_gen/video"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex_gen/video/videoservice"
+	video "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/video"
+	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/video/videoservice"
 	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
 	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
 	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
@@ -49,12 +49,4 @@ func InitVideo(config *viper.Config) {
 func Feed(ctx context.Context, req *video.FeedRequest) (*video.FeedResponse, error) {
 
 	return videoClient.Feed(ctx, req)
-}
-
-func PublishAction(ctx context.Context, req *video.PublishActionRequest) (*video.PublishActionResponse, error) {
-	return videoClient.PublishAction(ctx, req)
-}
-
-func PublishList(ctx context.Context, req *video.PublishListRequest) (*video.PublishListResponse, error) {
-	return videoClient.PublishList(ctx, req)
 }

@@ -3,14 +3,14 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/bytedance-summer-camp-2023/tiktok/cmd/api/handler"
+	"github.com/bytedance-summer-camp-2023/tiktok/pkg/jwt"
+	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
+	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
+	z "github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/network/standard"
-	"github.com/github.com/bytedance-summer-camp-2023/tiktok/cmd/api/handler"
-	"github.com/github.com/bytedance-summer-camp-2023/tiktok/pkg/jwt"
-	"github.com/github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
-	"github.com/github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
-	z "github.com/github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"github.com/hertz-contrib/gzip"
 )
 
@@ -33,37 +33,9 @@ func registerGroup(hz *server.Hertz) {
 			user.POST("/register/", handler.Register)
 			user.POST("/login/", handler.Login)
 		}
-		message := douyin.Group("/message")
-		{
-			message.GET("/chat/", handler.MessageChat)
-			message.POST("/action/", handler.MessageAction)
-		}
-		relation := douyin.Group("/relation")
-		{
-			// 粉丝列表
-			relation.GET("/follower/list/", handler.FollowerList)
-			// 关注列表
-			relation.GET("/follow/list/", handler.FollowList)
-			// 朋友列表
-			relation.GET("/friend/list/", handler.FriendList)
-			relation.POST("/action/", handler.RelationAction)
-		}
-		publish := douyin.Group("/publish")
-		{
-			publish.GET("/list/", handler.PublishList)
-			publish.POST("/action/", handler.PublishAction)
-		}
+
 		douyin.GET("/feed", handler.Feed)
-		favorite := douyin.Group("/favorite")
-		{
-			favorite.POST("/action/", handler.FavoriteAction)
-			favorite.GET("/list/", handler.FavoriteList)
-		}
-		comment := douyin.Group("/comment")
-		{
-			comment.POST("/action/", handler.CommentAction)
-			comment.GET("/list/", handler.CommentList)
-		}
+
 	}
 }
 

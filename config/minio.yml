@@ -4,8 +4,8 @@ Global:
 
 Minio:
   Endpoint: 10.96.195.144:9000
-  AccessKeyId: tiktokMinio
-  SecretAccessKey: tiktokMinio
+  AccessKeyId: minioadmin
+  SecretAccessKey: minioadmin
   UseSSL: false
   VideoBucketName: tiktok-videos
   CoverBucketName: tiktok-video-covers

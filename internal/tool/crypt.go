@@ -11,7 +11,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/bytedance-youthcamp-jbzx/tiktok/pkg/viper"
+	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"io/ioutil"
 	"os"
 )

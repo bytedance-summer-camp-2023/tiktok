@@ -20,6 +20,9 @@ services:
     environment:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: db_tiktok
+      MYSQL_USER: tiktokDB
+      MYSQL_PASSWORD: tiktokDB
 
   redis:
     image: 'redis:latest'

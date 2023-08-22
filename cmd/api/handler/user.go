@@ -9,8 +9,8 @@ import (
 
 	"github.com/bytedance-summer-camp-2023/tiktok/cmd/api/rpc"
 	"github.com/bytedance-summer-camp-2023/tiktok/internal/response"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex_gen/user"
-	kitex "github.com/bytedance-summer-camp-2023/tiktok/kitex_gen/user"
+	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
+	kitex "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
 )
 
 // Register 注册

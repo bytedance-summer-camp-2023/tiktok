@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	user "github.com/bytedance-summer-camp-2023/tiktok/kitex_gen/user"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex_gen/user/userservice"
+	user "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
+	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user/userservice"
 	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
 	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
 	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"

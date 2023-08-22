@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/bytedance-youthcamp-jbzx/tiktok/kitex/kitex_gen/comment"
+	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/comment"
 )
 
 type CommentAction struct {
