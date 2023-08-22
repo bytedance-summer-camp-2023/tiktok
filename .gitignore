@@ -21,7 +21,7 @@
 go.work
 
 .idea
-scripts/
-!docker-compose.yml
-!mysql.ddl
-
+scripts/etcd
+scripts/redis
+scripts/mysql
+scripts/minio
