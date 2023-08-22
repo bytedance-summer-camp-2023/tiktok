@@ -46,14 +46,14 @@ func init() {
 	if err != nil {
 		panic(err.Error())
 	}
-
-	dsn2 := getDsn("mysql.replica1")
-	dsn3 := getDsn("mysql.replica2")
+	//TODO 注释从数据库
+	//dsn2 := getDsn("mysql.replica1")
+	//dsn3 := getDsn("mysql.replica2")
 	// 配置dbresolver
 	_db.Use(dbresolver.Register(dbresolver.Config{
 		// use `db1` as sources, `db2` as replicas
 		Sources:  []gorm.Dialector{mysql.Open(dsn1)},
-		Replicas: []gorm.Dialector{mysql.Open(dsn2), mysql.Open(dsn3)},
+		Replicas: []gorm.Dialector{},
 		// sources/replicas load balancing policy
 		Policy: dbresolver.RandomPolicy{},
 		// print sources/replicas mode in logger
