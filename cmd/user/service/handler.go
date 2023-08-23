@@ -148,13 +148,6 @@ func (s *UserServiceImpl) UserInfo(ctx context.Context, req *user.UserInfoReques
 	// 从数据库获取user
 	usr, err := db.GetUserByID(ctx, userID)
 	if err != nil {
-		logger.Errorf("发生错误：%v", err.Error())
-		res := &user.UserInfoResponse{
-			StatusCode: -1,
-			StatusMsg:  "服务器内部错误：获取背景图失败",
-		}
-		return res, nil
-	} else if usr == nil {
 		logger.Errorf("该用户不存在：%v", err.Error())
 		res := &user.UserInfoResponse{
 			StatusCode: -1,
@@ -162,7 +155,24 @@ func (s *UserServiceImpl) UserInfo(ctx context.Context, req *user.UserInfoReques
 		}
 		return res, nil
 	}
-
+	//avatar, err := minio.GetFileTemporaryURL(minio.AvatarBucketName, usr.Avatar)
+	//if err != nil {
+	//	logger.Errorf("Minio获取头像失败：%v", err.Error())
+	//	res := &user.UserInfoResponse{
+	//		StatusCode: -1,
+	//		StatusMsg:  "服务器内部错误：获取头像失败",
+	//	}
+	//	return res, nil
+	//}
+	//backgroundImage, err := minio.GetFileTemporaryURL(minio.BackgroundImageBucketName, usr.BackgroundImage)
+	//if err != nil {
+	//	logger.Errorf("Minio获取背景图失败：%v", err.Error())
+	//	res := &user.UserInfoResponse{
+	//		StatusCode: -1,
+	//		StatusMsg:  "服务器内部错误：获取背景图失败",
+	//	}
+	//	return res, nil
+	//}
 	//返回结果
 	res := &user.UserInfoResponse{
 		StatusCode: 0,
@@ -181,5 +191,6 @@ func (s *UserServiceImpl) UserInfo(ctx context.Context, req *user.UserInfoReques
 			FavoriteCount:   int64(usr.FavoriteCount),
 		},
 	}
+	logger.Errorf("该用户不存在：%+v, %+v", usr, res)
 	return res, nil
 }

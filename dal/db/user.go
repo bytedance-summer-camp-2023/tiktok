@@ -67,13 +67,10 @@ func GetUsersByIDs(ctx context.Context, userIDs []int64) ([]*User, error) {
 //	@return error
 func GetUserByID(ctx context.Context, userID int64) (*User, error) {
 	res := new(User)
-	if err := GetDB().Clauses(dbresolver.Read).WithContext(ctx).First(&res, userID).Error; err == nil {
-		return res, err
-	} else if err == gorm.ErrRecordNotFound {
-		return nil, nil
-	} else {
+	if err := GetDB().Clauses(dbresolver.Read).WithContext(ctx).First(&res, userID).Error; err != nil {
 		return nil, err
 	}
+	return res, nil
 }
 
 // CreateUsers

@@ -127,7 +127,7 @@ func UserInfo(ctx context.Context, c *app.RequestContext) {
 		c.JSON(http.StatusOK, response.UserInfo{
 			Base: response.Base{
 				StatusCode: -1,
-				StatusMsg:  "token 已过期",
+				StatusMsg:  "token 不应该为空",
 			},
 			User: nil,
 		})
