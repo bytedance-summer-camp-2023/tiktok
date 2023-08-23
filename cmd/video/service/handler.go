@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"time"
 
 	"github.com/bytedance-summer-camp-2023/tiktok/dal/db"
@@ -144,8 +146,80 @@ func (s *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 
 // PublishAction implements the VideoServiceImpl interface.
 func (s *VideoServiceImpl) PublishAction(ctx context.Context, req *video.PublishActionRequest) (resp *video.PublishActionResponse, err error) {
+	logger := zap.InitLogger()
+	// 解析token,获取用户id
+	claims, err := Jwt.ParseToken(req.Token)
+	if err != nil {
+		logger.Errorln(err.Error())
+		res := &video.PublishActionResponse{
+			StatusCode: -1,
+			StatusMsg:  "token 解析错误",
+		}
+		return res, nil
+	}
+	userID := claims.Id
 
-	return nil, nil
+	if len(req.Title) == 0 || len(req.Title) > 32 {
+		logger.Errorf("标题不能为空且不能超过32个字符：%d", len(req.Title))
+		res := &video.PublishActionResponse{
+			StatusCode: -1,
+			StatusMsg:  "标题不能为空且不能超过32个字符",
+		}
+		return res, nil
+	}
+
+	// 限制文件上传大小
+	maxSize := viper.Init("video").Viper.GetInt("video.maxSizeLimit")
+	size := len(req.Data)
+	if size > maxSize*1000*1000 {
+		logger.Errorln("视频文件过大")
+		res := &video.PublishActionResponse{
+			StatusCode: -1,
+			StatusMsg:  fmt.Sprintf("该视频文件大于%dMB，上传受限", maxSize),
+		}
+		return res, nil
+	}
+
+	createTimestamp := time.Now().UnixMilli()
+	videoTitle, coverTitle := fmt.Sprintf("%d_%s_%d.mp4", userID, req.Title, createTimestamp), fmt.Sprintf("%d_%s_%d.png", userID, req.Title, createTimestamp)
+
+	// 插入数据库
+	v := &db.Video{
+		Title:    req.Title,
+		PlayUrl:  videoTitle,
+		CoverUrl: coverTitle,
+		AuthorID: uint(userID),
+	}
+	err = db.CreateVideo(ctx, v)
+	if err != nil {
+		logger.Errorln(err.Error())
+		res := &video.PublishActionResponse{
+			StatusCode: -1,
+			StatusMsg:  "视频发布失败，服务器内部错误",
+		}
+		return res, nil
+	}
+
+	go func() {
+		err := VideoPublish(req.Data, videoTitle, coverTitle)
+		if err != nil {
+			// 发生错误，则删除插入的记录
+			e := db.DelVideoByID(ctx, int64(v.ID), userID)
+			if e != nil {
+				logger.Errorf("视频记录删除失败：%s", err.Error())
+			}
+		}
+	}()
+	//async.Exec(func() interface{} {
+	//	return VideoPublish(ctx, req.Data, videoTitle, coverTitle, int64(v.ID), userID)
+	//})
+	//future.Await()
+
+	res := &video.PublishActionResponse{
+		StatusCode: 0,
+		StatusMsg:  "创建记录成功，等待后台上传完成",
+	}
+	return res, nil
 }
 
 // PublishList implements the VideoServiceImpl interface.

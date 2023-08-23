@@ -47,6 +47,9 @@ func InitVideo(config *viper.Config) {
 }
 
 func Feed(ctx context.Context, req *video.FeedRequest) (*video.FeedResponse, error) {
-
 	return videoClient.Feed(ctx, req)
+}
+
+func PublishAction(ctx context.Context, req *video.PublishActionRequest) (*video.PublishActionResponse, error) {
+	return videoClient.PublishAction(ctx, req)
 }

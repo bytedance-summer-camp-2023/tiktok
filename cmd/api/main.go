@@ -33,7 +33,10 @@ func registerGroup(hz *server.Hertz) {
 			user.POST("/register/", handler.Register)
 			user.POST("/login/", handler.Login)
 		}
-
+		publish := douyin.Group("/publish")
+		{
+			publish.POST("/action/", handler.PublishAction)
+		}
 		douyin.GET("/feed", handler.Feed)
 
 	}
