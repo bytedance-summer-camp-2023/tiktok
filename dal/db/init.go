@@ -46,31 +46,31 @@ func init() {
 	if err != nil {
 		panic(err.Error())
 	}
-	//TODO 注释从数据库
-	//dsn2 := getDsn("mysql.replica1")
-	//dsn3 := getDsn("mysql.replica2")
-	// 配置dbresolver
+
+	// create replicas
+	dsn2 := getDsn("mysql.replica1")
+	dsn3 := getDsn("mysql.replica2")
+
+	// set dbresolver
 	_db.Use(dbresolver.Register(dbresolver.Config{
-		// use `db1` as sources, `db2` as replicas
-		Sources:  []gorm.Dialector{mysql.Open(dsn1)},
-		Replicas: []gorm.Dialector{},
-		// sources/replicas load balancing policy
-		Policy: dbresolver.RandomPolicy{},
-		// print sources/replicas mode in logger
+		Sources:           []gorm.Dialector{mysql.Open(dsn1)},
+		Replicas:          []gorm.Dialector{mysql.Open(dsn2), mysql.Open(dsn3)},
+		Policy:            dbresolver.RandomPolicy{},
 		TraceResolverMode: false,
 	}))
-	// AutoMigrate会创建表，缺失的外键，约束，列和索引。如果大小，精度，是否为空，可以更改，则AutoMigrate会改变列的类型。出于保护您数据的目的，它不会删除未使用的列
-	// 刷新数据库的表格，使其保持最新。即如果我在旧表的基础上增加一个字段age，那么调用autoMigrate后，旧表会自动多出一列age，值为空
 
-	//TODO 自行添加，&Video{}, &Comment{}, &FavoriteVideoRelation{}, &FollowRelation{}, &Message{}, &FavoriteCommentRelation{}
+	// other tables will be automatically changed
 	if err := _db.AutoMigrate(&User{}); err != nil {
-		zapLogger.Fatalln("autoMigrate err %+v", err)
+		zapLogger.Fatalln(err.Error())
 	}
 
+	// create database
 	db, err := _db.DB()
 	if err != nil {
-		zapLogger.Fatalln("get db err %+v", err)
+		zapLogger.Fatalln(err.Error())
 	}
+
+	// set database options
 	db.SetMaxOpenConns(1000)
 	db.SetMaxIdleConns(20)
 	db.SetConnMaxLifetime(60 * time.Minute)

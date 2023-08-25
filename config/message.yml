@@ -1,11 +1,11 @@
 server:
-  name: "TiktokFavoriteServer"
-  host: 127.0.0.1
-  port: 8082
+  name: "TiktokMessageServer"
+  host: 0.0.0.0
+  port: 8083
 
 rpc:
   host: 127.0.0.1
-  port: 50052
+  port: 50053
 
 JWT:
   signingKey: "signingKey"

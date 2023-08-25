@@ -5,7 +5,7 @@ mysql:
     port: 3306
     database: db_tiktok
     username: root
-    password: root
+    password: 123456
     charset: utf8mb4
 
 redis:
