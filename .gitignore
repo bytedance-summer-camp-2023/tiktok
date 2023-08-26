@@ -25,3 +25,4 @@ scripts/etcd
 scripts/redis
 scripts/mysql
 scripts/minio
+scripts/rabbitmq
