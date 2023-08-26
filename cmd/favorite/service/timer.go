@@ -19,21 +19,13 @@ func consume() error {
 	}
 	// 将消息队列的消息全部取出
 	for msg := range msgs {
-		//err := redis.LockByMutex(context.Background(), redis.FavoriteMutex)
-		//if err != nil {
-		//	logger.Errorf("Redis mutex lock error: %s", err.Error())
-		//	return err
-		//}
+
 		fc := new(redis.FavoriteCache)
 		// 解析json
 		if err = json.Unmarshal(msg.Body, &fc); err != nil {
 			logger.Errorf("json unmarshal error: %s", err.Error())
 			fmt.Println("json unmarshal error:" + err.Error())
-			//err = redis.UnlockByMutex(context.Background(), redis.FavoriteMutex)
-			//if err != nil {
-			//	logger.Errorf("Redis mutex unlock error: %s", err.Error())
-			//	return err
-			//}
+
 			continue
 		}
 		fmt.Printf("==> Get new message: %v\n", fc)
@@ -41,18 +33,9 @@ func consume() error {
 		if err = redis.UpdateFavorite(context.Background(), fc); err != nil {
 			logger.Errorf("json unmarshal error: %s", err.Error())
 			fmt.Println("json unmarshal error:" + err.Error())
-			//err = redis.UnlockByMutex(context.Background(), redis.FavoriteMutex)
-			//if err != nil {
-			//	logger.Errorf("Redis mutex unlock error: %s", err.Error())
-			//	return err
-			//}
 			continue
 		}
-		//err = redis.UnlockByMutex(context.Background(), redis.FavoriteMutex)
-		//if err != nil {
-		//	logger.Errorf("Redis mutex unlock error: %s", err.Error())
-		//	return err
-		//}
+
 		if !autoAck {
 			err := msg.Ack(true)
 			if err != nil {

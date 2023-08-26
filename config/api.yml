@@ -1,6 +1,6 @@
 server:
   name: "TiktokAPIServer"
-  host: 127.0.0.1
+  host: 0.0.0.0
   t: 8089
   limit:
     capacity: 200

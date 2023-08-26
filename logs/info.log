@@ -30,3 +30,15 @@
 2023-08-25T16:19:25.267+0800	INFO	db/init.go:36	Redis server connection successful!
 2023-08-25T16:21:14.099+0800	INFO	db/init.go:36	Redis server connection successful!
 2023-08-25T16:27:18.992+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-25T16:34:51.314+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-25T16:37:38.399+0800	INFO	db/init.go:35	Redis server connection successful!
+2023-08-25T16:37:38.431+0800	INFO	db/init.go:38	root:123456@tcp(127.0.0.1:3306)/db_tiktok?charset=utf8mb4&parseTime=True&loc=Local
+2023-08-25T16:47:42.333+0800	INFO	db/init.go:35	Redis server connection successful!
+2023-08-25T16:47:42.364+0800	INFO	db/init.go:38	root:123456@tcp(127.0.0.1:3306)/db_tiktok?charset=utf8mb4&parseTime=True&loc=Local
+2023-08-25T16:55:04.331+0800	INFO	db/init.go:35	Redis server connection successful!
+2023-08-25T16:55:04.376+0800	INFO	db/init.go:38	root:123456@tcp(127.0.0.1:3306)/db_tiktok?charset=utf8mb4&parseTime=True&loc=Local
+2023-08-25T16:58:36.383+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-25T19:47:08.329+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-25T19:48:25.991+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-25T19:58:48.549+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-25T20:12:13.087+0800	INFO	db/init.go:36	Redis server connection successful!

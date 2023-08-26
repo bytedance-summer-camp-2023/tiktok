@@ -12,3 +12,12 @@
 2023-08-24T22:39:28.529+0800	FATAL	redis/init.go:76	i/o timeout
 2023-08-25T16:19:55.407+0800	FATAL	redis/init.go:76	i/o timeout
 2023-08-25T16:27:49.109+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T16:35:21.414+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T16:38:08.824+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T16:48:12.732+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T16:55:34.669+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T16:59:06.830+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T19:47:38.868+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T19:48:56.352+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T19:59:18.927+0800	FATAL	redis/init.go:76	i/o timeout
+2023-08-25T20:12:43.528+0800	FATAL	redis/init.go:76	i/o timeout
