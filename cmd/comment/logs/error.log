@@ -1,0 +1,4 @@
+2023-08-29T22:41:17.572+0800	ERROR	service/handler.go:24	Token parsing error: token expired
+2023-08-29T22:41:20.794+0800	ERROR	service/handler.go:60	Create comment failed：Error 1054 (42S22): Unknown column 'created_time' in 'field list'
+2023-08-29T22:41:32.063+0800	ERROR	service/handler.go:60	Create comment failed：Error 1054 (42S22): Unknown column 'created_time' in 'field list'
+2023-08-29T22:48:37.507+0800	ERROR	service/handler.go:143	Token parsing error: token expired

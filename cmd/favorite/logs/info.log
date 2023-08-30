@@ -1,0 +1,17 @@
+2023-08-29T12:03:40.672+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-29T12:03:40.716+0800	INFO	redis/init.go:79	Redis server connection successful!
+2023-08-29T12:03:40.717+0800	INFO	redis/init.go:86	MySQL synchronization is enabled.
+2023-08-29T12:03:41.824+0800	INFO	etcd/registry.go:133	start keepalive lease 18f8a3f700b240c for etcd registry
+2023-08-29T12:05:43.931+0800	INFO	etcd/registry.go:142	stop keepalive lease 18f8a3f700b240c for etcd registry
+2023-08-29T21:56:08.641+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-29T21:56:08.686+0800	INFO	redis/init.go:79	Redis server connection successful!
+2023-08-29T21:56:08.687+0800	INFO	redis/init.go:86	MySQL synchronization is enabled.
+2023-08-29T21:56:09.809+0800	INFO	etcd/registry.go:133	start keepalive lease 18f8a4188569311 for etcd registry
+2023-08-29T22:40:36.661+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2Mzc1fQ.nsNyOPTgvgmaGP7e6BpRcKhEuSuSk849vskEnAvcjZs" video_id:10 action_type:1}
+2023-08-29T22:40:36.667+0800	DEBUG	middleware/common.go:27	remote service name: TiktokFavoriteServer, remote method: FavoriteAction
+2023-08-29T22:40:36.668+0800	INFO	middleware/server.go:18	client address: [::1]:55406
+2023-08-29T22:40:36.674+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success"}
+2023-08-29T22:41:01.534+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1 token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2Mzc1fQ.nsNyOPTgvgmaGP7e6BpRcKhEuSuSk849vskEnAvcjZs"}
+2023-08-29T22:41:01.534+0800	DEBUG	middleware/common.go:27	remote service name: TiktokFavoriteServer, remote method: FavoriteList
+2023-08-29T22:41:01.534+0800	INFO	middleware/server.go:18	client address: [::1]:55406
+2023-08-29T22:41:01.542+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success" video_list:{id:10 author:{id:1 name:"1" avatar:"http://127.0.0.1:9000/tiktok-user-avatars/default5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144101Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4657e186105c4b3383d8a8493df0bf1ff5d373e1d0ebe50a5175e2864ba695ba" background_image:"http://127.0.0.1:9000/tiktok-user-backgrounds/default_background.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144101Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4c5eefeda345a7dacf4aa860038e1f025d385c9864b90908f1d50db320406fdc" total_favorited:1 work_count:1 favorite_count:1} play_url:"http://127.0.0.1:9000/tiktok-videos/1_test%20file_1693320000076.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144101Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=744595608c33b2805268c88b1702093ea48369440f939e8097febcc6e332be24" cover_url:"http://127.0.0.1:9000/tiktok-video-covers/1_test%20file_1693320000076.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144101Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5f7dafb317cc4dc012539a27618e7df86c1a2ef9646a5613284f8c53a91b7344" favorite_count:1 is_favorite:true title:"test file"}}

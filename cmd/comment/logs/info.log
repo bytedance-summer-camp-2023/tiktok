@@ -1,0 +1,41 @@
+2023-08-29T12:04:14.420+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-29T12:04:15.505+0800	INFO	etcd/registry.go:133	start keepalive lease 18f8a3f700b2410 for etcd registry
+2023-08-29T12:05:44.628+0800	INFO	etcd/registry.go:142	stop keepalive lease 18f8a3f700b2410 for etcd registry
+2023-08-29T21:56:17.185+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-08-29T21:56:18.295+0800	INFO	etcd/registry.go:133	start keepalive lease 18f8a4188569314 for etcd registry
+2023-08-29T22:41:17.565+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzMjMwMTEyfQ.VFCB_OouX1NzeSNrPv4-0uVeGCmYUEaZGYAEsnslZG0"  video_id:10  action_type:1  comment_text:"test"}
+2023-08-29T22:41:17.569+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentAction
+2023-08-29T22:41:17.569+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:41:17.576+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"Token parsing error"}
+2023-08-29T22:41:20.780+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2Mzc1fQ.nsNyOPTgvgmaGP7e6BpRcKhEuSuSk849vskEnAvcjZs"  video_id:10  action_type:1  comment_text:"test"}
+2023-08-29T22:41:20.780+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentAction
+2023-08-29T22:41:20.781+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:41:20.795+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"Create comment failed: server inner error"}
+2023-08-29T22:41:32.059+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2Mzc1fQ.nsNyOPTgvgmaGP7e6BpRcKhEuSuSk849vskEnAvcjZs"  video_id:10  action_type:1  comment_text:"test"}
+2023-08-29T22:41:32.060+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentAction
+2023-08-29T22:41:32.060+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:41:32.064+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"Create comment failed: server inner error"}
+2023-08-29T22:48:04.890+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2Mzc1fQ.nsNyOPTgvgmaGP7e6BpRcKhEuSuSk849vskEnAvcjZs"  video_id:10  action_type:1  comment_text:"test"}
+2023-08-29T22:48:04.891+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentAction
+2023-08-29T22:48:04.891+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:48:04.903+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"Success"}
+2023-08-29T22:48:37.506+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkyODU3MzExfQ.Ti5xYmlFqAEVjb_XlZWKEzfo8H-VbXa41268mjRp328"  video_id:10}
+2023-08-29T22:48:37.506+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentList
+2023-08-29T22:48:37.506+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:48:37.509+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"Token parsing error"}
+2023-08-29T22:48:52.967+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2OTIzfQ.zPqejoTzJSVnlDYPMdcEPLdXv2Ge5CGlRUm_ZuH3AXY"  video_id:10}
+2023-08-29T22:48:52.968+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentList
+2023-08-29T22:48:52.968+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:48:52.973+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"Success"  comment_list:{id:1  user:{id:1  name:"1"  is_follow:true  avatar:"http://127.0.0.1:9000/tiktok-user-avatars/default5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144852Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d6ea93f9c10f492ab0388180e3c973666b251b5d1edba2d14db039bf2a5650e2"  background_image:"http://127.0.0.1:9000/tiktok-user-backgrounds/default5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144852Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7e0dedbef3652525c9c6ecb2db80aa3889b24d5a9deff7a413ead56a608aeff3"  total_favorited:1  work_count:1  favorite_count:1}  content:"test"  create_date:"2023-08-29"}}
+2023-08-29T22:49:05.650+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2OTIzfQ.zPqejoTzJSVnlDYPMdcEPLdXv2Ge5CGlRUm_ZuH3AXY"  video_id:10  action_type:1  comment_text:"test"}
+2023-08-29T22:49:05.651+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentAction
+2023-08-29T22:49:05.651+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:49:05.659+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"Success"}
+2023-08-29T22:49:09.228+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2OTIzfQ.zPqejoTzJSVnlDYPMdcEPLdXv2Ge5CGlRUm_ZuH3AXY"  video_id:10}
+2023-08-29T22:49:09.228+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentList
+2023-08-29T22:49:09.229+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:49:09.233+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"Success"  comment_list:{id:2  user:{id:1  name:"1"  is_follow:true  avatar:"http://127.0.0.1:9000/tiktok-user-avatars/default5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144909Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cd14f35a5d8744c07e7524f3381ccbce948b540208af07aaf3e5723960df4e99"  background_image:"http://127.0.0.1:9000/tiktok-user-backgrounds/default5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144909Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2fe31015a4cd6ea73ea2344645f73a9d6edabe835eba3b2c36735a6f3fda3183"  total_favorited:1  work_count:1  favorite_count:1}  content:"test"  create_date:"2023-08-29"}  comment_list:{id:1  user:{id:1  name:"1"  is_follow:true  avatar:"http://127.0.0.1:9000/tiktok-user-avatars/default5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144909Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cd14f35a5d8744c07e7524f3381ccbce948b540208af07aaf3e5723960df4e99"  background_image:"http://127.0.0.1:9000/tiktok-user-backgrounds/default5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20230829%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230829T144909Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2fe31015a4cd6ea73ea2344645f73a9d6edabe835eba3b2c36735a6f3fda3183"  total_favorited:1  work_count:1  favorite_count:1}  content:"test"  create_date:"2023-08-29"}}
+2023-08-29T22:49:20.222+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2OTIzfQ.zPqejoTzJSVnlDYPMdcEPLdXv2Ge5CGlRUm_ZuH3AXY"  video_id:10  action_type:2  comment_id:2}
+2023-08-29T22:49:20.223+0800	DEBUG	middleware/common.go:27	remote service name: TiktokCommentServer, remote method: CommentAction
+2023-08-29T22:49:20.224+0800	INFO	middleware/server.go:18	client address: [::1]:37476
+2023-08-29T22:49:20.242+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"Success"}
