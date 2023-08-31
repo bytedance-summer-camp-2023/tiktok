@@ -173,8 +173,6 @@ func (s *CommentServiceImpl) CommentList(ctx context.Context, req *comment.Comme
 			return res, nil
 		}
 
-		// TODO get relation
-
 		avatar, err := minio.GetFileTemporaryURL(minio.AvatarBucketName, u.Avatar)
 		if err != nil {
 			logger.Errorf("Minio error while getting avatar URL：%v", err.Error())

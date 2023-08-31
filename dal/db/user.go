@@ -9,9 +9,8 @@ import (
 
 type User struct {
 	gorm.Model
-	UserName string `gorm:"index:idx_username,unique;type:varchar(40);not null" json:"name,omitempty"` //用户名
-	Password string `gorm:"type:varchar(256);not null" json:"password,omitempty"`                      //密码
-	//TODO 后面加 FavoriteVideos  []Video `gorm:"many2many:user_favorite_videos" json:"favorite_videos,omitempty"`	                                       //喜欢的视频，多对多的关系
+	UserName        string `gorm:"index:idx_username,unique;type:varchar(40);not null" json:"name,omitempty"`                                  //用户名
+	Password        string `gorm:"type:varchar(256);not null" json:"password,omitempty"`                                                       //密码 	//喜欢的视频，多对多的关系
 	FollowingCount  uint   `gorm:"default:0;not null" json:"follow_count,omitempty"`                                                           // 关注总数
 	FollowerCount   uint   `gorm:"default:0;not null" json:"follower_count,omitempty"`                                                         // 粉丝总数
 	Avatar          string `gorm:"type:varchar(256)" json:"avatar,omitempty"`                                                                  // 用户头像
@@ -49,16 +48,6 @@ func GetUserByID(ctx context.Context, userID int64) (*User, error) {
 	}
 }
 
-func CreateUsers(ctx context.Context, users []*User) error {
-	err := GetDB().Clauses(dbresolver.Write).WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(users).Error; err != nil {
-			return err
-		}
-		return nil
-	})
-	return err
-}
-
 func CreateUser(ctx context.Context, user *User) error {
 	err := GetDB().Clauses(dbresolver.Write).WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(user).Error; err != nil {
@@ -73,19 +62,6 @@ func GetUserByName(ctx context.Context, userName string) (*User, error) {
 	res := new(User)
 	if err := GetDB().Clauses(dbresolver.Read).WithContext(ctx).Select("id, user_name, password").Where("user_name = ?", userName).First(&res).Error; err == nil {
 		return res, nil
-	} else if err == gorm.ErrRecordNotFound {
-		return nil, nil
-	} else {
-		return nil, err
-	}
-}
-
-func GetPasswordByUsername(ctx context.Context, userName string) (*User, error) {
-	user := new(User)
-	if err := GetDB().Clauses(dbresolver.Read).WithContext(ctx).
-		Select("password").Where("user_name = ?", userName).
-		First(&user).Error; err == nil {
-		return user, nil
 	} else if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	} else {

@@ -21,7 +21,7 @@ type VideoServiceImpl struct{}
 func (s *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (resp *video.FeedResponse, err error) {
 	logger := zap.InitLogger()
 	nextTime := time.Now().UnixMilli()
-	var _ int64 = -1
+	var userID int64 = -1
 
 	// 验证token有效性
 	if req.Token != "" {
@@ -35,6 +35,7 @@ func (s *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			return res, nil
 		}
 		_ = claims.Id
+		userID = claims.Id
 	}
 
 	// 调用数据库查询 video_list
@@ -56,11 +57,25 @@ func (s *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			return nil, err
 		}
 
-		// TODO
-		relation := false
+		relation, err := db.GetRelationByUserIDs(ctx, userID, int64(author.ID))
+		if err != nil {
+			logger.Errorln(err.Error())
+			res := &video.FeedResponse{
+				StatusCode: -1,
+				StatusMsg:  "视频获取失败：服务器内部错误",
+			}
+			return res, nil
+		}
 
-		// TODO
-		favorite := false
+		favorite, err := db.GetFavoriteVideoRelationByUserVideoID(ctx, userID, int64(r.ID))
+		if err != nil {
+			logger.Errorln(err.Error())
+			res := &video.FeedResponse{
+				StatusCode: -1,
+				StatusMsg:  "视频获取失败：服务器内部错误",
+			}
+			return res, nil
+		}
 
 		playUrl, err := minio.GetFileTemporaryURL(minio.VideoBucketName, r.PlayUrl)
 		if err != nil {
@@ -109,7 +124,7 @@ func (s *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 				Name:            author.UserName,
 				FollowCount:     int64(author.FollowingCount),
 				FollowerCount:   int64(author.FollowerCount),
-				IsFollow:        relation,
+				IsFollow:        relation != nil,
 				Avatar:          avatarUrl,
 				BackgroundImage: backgroundUrl,
 				Signature:       author.Signature,
@@ -121,7 +136,7 @@ func (s *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			CoverUrl:      coverUrl,
 			FavoriteCount: int64(r.FavoriteCount),
 			CommentCount:  int64(r.CommentCount),
-			IsFavorite:    favorite,
+			IsFavorite:    favorite != nil,
 			Title:         r.Title,
 		})
 	}
@@ -246,11 +261,25 @@ func (s *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			return res, nil
 		}
 
-		// TODO
-		follow := false
+		follow, err := db.GetRelationByUserIDs(ctx, userID, int64(author.ID))
+		if err != nil {
+			logger.Errorln(err.Error())
+			res := &video.PublishListResponse{
+				StatusCode: -1,
+				StatusMsg:  "发布列表获取失败：服务器内部错误",
+			}
+			return res, nil
+		}
 
-		// TODO
-		favorite := false
+		favorite, err := db.GetFavoriteVideoRelationByUserVideoID(ctx, userID, int64(r.ID))
+		if err != nil {
+			logger.Errorln(err.Error())
+			res := &video.PublishListResponse{
+				StatusCode: -1,
+				StatusMsg:  "发布列表获取失败：服务器内部错误",
+			}
+			return res, nil
+		}
 
 		playUrl, err := minio.GetFileTemporaryURL(minio.VideoBucketName, r.PlayUrl)
 		if err != nil {
@@ -299,7 +328,7 @@ func (s *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 				Name:            author.UserName,
 				FollowCount:     int64(author.FollowingCount),
 				FollowerCount:   int64(author.FollowerCount),
-				IsFollow:        follow,
+				IsFollow:        follow != nil,
 				Avatar:          avatorUrl,
 				BackgroundImage: backgroundUrl,
 				Signature:       author.Signature,
@@ -311,7 +340,7 @@ func (s *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			CoverUrl:      coverUrl,
 			FavoriteCount: int64(r.FavoriteCount),
 			CommentCount:  int64(r.CommentCount),
-			IsFavorite:    favorite,
+			IsFavorite:    favorite != nil,
 			Title:         r.Title,
 		})
 	}
