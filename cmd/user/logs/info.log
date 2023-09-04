@@ -30,3 +30,41 @@
 2023-08-29T22:48:43.818+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Login
 2023-08-29T22:48:43.819+0800	INFO	middleware/server.go:18	client address: [::1]:54444
 2023-08-29T22:48:43.826+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success" user_id:1 token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzNDA2OTIzfQ.zPqejoTzJSVnlDYPMdcEPLdXv2Ge5CGlRUm_ZuH3AXY"}
+2023-09-03T12:08:51.811+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-09-03T12:08:52.986+0800	INFO	etcd/registry.go:133	start keepalive lease 18f8a5939fa7a0d for etcd registry
+2023-09-03T12:12:05.227+0800	INFO	etcd/registry.go:142	stop keepalive lease 18f8a5939fa7a0d for etcd registry
+2023-09-03T12:12:18.203+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-09-03T12:12:19.425+0800	INFO	etcd/registry.go:133	start keepalive lease 18f8a5939fa7a20 for etcd registry
+2023-09-03T12:17:08.606+0800	DEBUG	middleware/common.go:25	real request: &{Req:username:"孔秀兰1111111" password:"veniam"}
+2023-09-03T12:17:08.613+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Register
+2023-09-03T12:17:08.613+0800	INFO	middleware/server.go:18	client address: [::1]:48322
+2023-09-03T12:17:08.650+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success" user_id:2 token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MiwiZXhwIjoxNjkzNzE0OTI4fQ.x2pLlw_Wf-fnrGzZymbyMgSJXdGPUmqWymQWKtjrBr8"}
+2023-09-03T12:17:08.731+0800	DEBUG	middleware/common.go:25	real request: &{Req:username:"1" password:"111111"}
+2023-09-03T12:17:08.732+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Register
+2023-09-03T12:17:08.733+0800	INFO	middleware/server.go:18	client address: [::1]:48322
+2023-09-03T12:17:08.741+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1 status_msg:"该用户名已存在，请更换"}
+2023-09-03T12:18:22.913+0800	DEBUG	middleware/common.go:25	real request: &{Req:username:"1" password:"111111"}
+2023-09-03T12:18:22.914+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Login
+2023-09-03T12:18:22.914+0800	INFO	middleware/server.go:18	client address: [::1]:48322
+2023-09-03T12:18:22.916+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success" user_id:1 token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAxMTAyfQ.cuXA5Y6ebAHaW1VBePflJStJSsyZuE8xnS-bZGRRZKA"}
+2023-09-03T12:19:27.371+0800	DEBUG	middleware/common.go:25	real request: &{Req:username:"1" password:"111111"}
+2023-09-03T12:19:27.372+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Login
+2023-09-03T12:19:27.372+0800	INFO	middleware/server.go:18	client address: [::1]:48322
+2023-09-03T12:19:27.373+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success" user_id:1 token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAxMTY3fQ.mg-ZJk-0JWnalz17OtGl8RJnI1cMGHKYUm3-RO7tyws"}
+2023-09-03T12:19:57.023+0800	DEBUG	middleware/common.go:25	real request: &{Req:username:"1" password:"111111"}
+2023-09-03T12:19:57.023+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Login
+2023-09-03T12:19:57.023+0800	INFO	middleware/server.go:18	client address: [::1]:48322
+2023-09-03T12:19:57.026+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success" user_id:1 token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAxMTk3fQ.dxQV0zSO1HmYssL6aRdf7QbD1u5gVPpqCX1ljixTxvs"}
+2023-09-03T12:20:39.436+0800	DEBUG	middleware/common.go:25	real request: &{Req:username:"1" password:"111111"}
+2023-09-03T12:20:39.437+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Register
+2023-09-03T12:20:39.437+0800	INFO	middleware/server.go:18	client address: [::1]:48322
+2023-09-03T12:20:39.440+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1 status_msg:"该用户名已存在，请更换"}
+2023-09-03T12:20:44.868+0800	DEBUG	middleware/common.go:25	real request: &{Req:username:"1" password:"111111"}
+2023-09-03T12:20:44.868+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Login
+2023-09-03T12:20:44.869+0800	INFO	middleware/server.go:18	client address: [::1]:48322
+2023-09-03T12:20:44.870+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success" user_id:1 token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAxMjQ0fQ.1mB1StMRnwHCAqJKDPpl_ZljrO_JFO2UN29ckqMS2n0"}
+2023-09-03T12:37:33.609+0800	DEBUG	middleware/common.go:25	real request: &{Req:username:"1" password:"111111"}
+2023-09-03T12:37:33.610+0800	DEBUG	middleware/common.go:27	remote service name: TiktokUserServer, remote method: Login
+2023-09-03T12:37:33.610+0800	INFO	middleware/server.go:18	client address: [::1]:48322
+2023-09-03T12:37:33.612+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success" user_id:1 token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAyMjUzfQ.Vjncalca_mAKUUOVxB96SX8-ydMwUD8P2JobnX_GxqY"}
+2023-09-03T13:03:33.816+0800	INFO	etcd/registry.go:142	stop keepalive lease 18f8a5939fa7a20 for etcd registry

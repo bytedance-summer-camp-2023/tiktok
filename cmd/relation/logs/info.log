@@ -68,3 +68,69 @@
 2023-08-29T22:49:39.760+0800	INFO	middleware/server.go:18	client address: [::1]:42178
 2023-08-29T22:49:39.763+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success"}
 2023-08-29T23:32:15.949+0800	INFO	etcd/registry.go:142	stop keepalive lease 18f8a418856930e for etcd registry
+2023-09-03T12:08:49.917+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-09-03T12:08:50.004+0800	INFO	redis/init.go:79	Redis server connection successful!
+2023-09-03T12:08:50.008+0800	INFO	redis/init.go:86	MySQL synchronization is enabled.
+2023-09-03T12:08:51.160+0800	INFO	etcd/registry.go:133	start keepalive lease 18f8a5939fa7a0a for etcd registry
+2023-09-03T12:12:03.126+0800	INFO	etcd/registry.go:142	stop keepalive lease 18f8a5939fa7a0a for etcd registry
+2023-09-03T12:12:20.168+0800	INFO	db/init.go:36	Redis server connection successful!
+2023-09-03T12:12:20.279+0800	INFO	redis/init.go:79	Redis server connection successful!
+2023-09-03T12:12:20.282+0800	INFO	redis/init.go:86	MySQL synchronization is enabled.
+2023-09-03T12:12:21.484+0800	INFO	etcd/registry.go:133	start keepalive lease 18f8a5939fa7a23 for etcd registry
+2023-09-03T12:36:25.109+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:3  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MiwiZXhwIjoxNjkzMzExMjI5fQ.RBkKCXOjFNLGfun9eeeWXO00Zi9GsHHj_POSuNgjxLw"}
+2023-09-03T12:36:25.111+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFollowerList
+2023-09-03T12:36:25.112+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:36:25.119+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T12:36:25.186+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzMzY2NjcwfQ.SZ9H5l_RTLFEOhNDhGGrFxAsVZnMd_Dbj7bUVeJ0BvE"}
+2023-09-03T12:36:25.187+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFriendList
+2023-09-03T12:36:25.187+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:36:25.189+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T12:36:25.264+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6NCwiZXhwIjoxNjkzMjI1NjcyfQ.M3VDgT9DNOhfxryQ3wTLN2JoXdx3DWOyPUc66bcWqeE"  to_user_id:2  action_type:1}
+2023-09-03T12:36:25.264+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationAction
+2023-09-03T12:36:25.265+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:36:25.266+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T12:37:26.147+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzMzY2NjcwfQ.SZ9H5l_RTLFEOhNDhGGrFxAsVZnMd_Dbj7bUVeJ0BvE"}
+2023-09-03T12:37:26.148+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFriendList
+2023-09-03T12:37:26.148+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:37:26.150+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T12:37:47.710+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAyMjUzfQ.Vjncalca_mAKUUOVxB96SX8-ydMwUD8P2JobnX_GxqY"}
+2023-09-03T12:37:47.712+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFriendList
+2023-09-03T12:37:47.713+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:37:47.727+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success"}
+2023-09-03T12:38:27.208+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:3  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MiwiZXhwIjoxNjkzMzExMjI5fQ.RBkKCXOjFNLGfun9eeeWXO00Zi9GsHHj_POSuNgjxLw"}
+2023-09-03T12:38:27.208+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFollowerList
+2023-09-03T12:38:27.208+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:38:27.210+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T12:38:27.254+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzMzY2NjcwfQ.SZ9H5l_RTLFEOhNDhGGrFxAsVZnMd_Dbj7bUVeJ0BvE"}
+2023-09-03T12:38:27.254+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFriendList
+2023-09-03T12:38:27.254+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:38:27.256+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T12:38:27.333+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6NCwiZXhwIjoxNjkzMjI1NjcyfQ.M3VDgT9DNOhfxryQ3wTLN2JoXdx3DWOyPUc66bcWqeE"  to_user_id:2  action_type:1}
+2023-09-03T12:38:27.333+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationAction
+2023-09-03T12:38:27.333+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:38:27.335+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T12:38:53.510+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAyMjUzfQ.Vjncalca_mAKUUOVxB96SX8-ydMwUD8P2JobnX_GxqY"}
+2023-09-03T12:38:53.511+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFollowerList
+2023-09-03T12:38:53.511+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:38:53.517+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success"}
+2023-09-03T12:38:53.573+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAyMjUzfQ.Vjncalca_mAKUUOVxB96SX8-ydMwUD8P2JobnX_GxqY"}
+2023-09-03T12:38:53.573+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFriendList
+2023-09-03T12:38:53.574+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:38:53.575+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success"}
+2023-09-03T12:38:53.620+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6NCwiZXhwIjoxNjkzMjI1NjcyfQ.M3VDgT9DNOhfxryQ3wTLN2JoXdx3DWOyPUc66bcWqeE"  to_user_id:2  action_type:1}
+2023-09-03T12:38:53.621+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationAction
+2023-09-03T12:38:53.622+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:38:53.625+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T12:39:30.058+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAyMjUzfQ.Vjncalca_mAKUUOVxB96SX8-ydMwUD8P2JobnX_GxqY"}
+2023-09-03T12:39:30.059+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFollowerList
+2023-09-03T12:39:30.059+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:39:30.061+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success"}
+2023-09-03T12:39:30.090+0800	DEBUG	middleware/common.go:25	real request: &{Req:user_id:1  token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiZXhwIjoxNjkzODAyMjUzfQ.Vjncalca_mAKUUOVxB96SX8-ydMwUD8P2JobnX_GxqY"}
+2023-09-03T12:39:30.091+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationFriendList
+2023-09-03T12:39:30.091+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:39:30.093+0800	INFO	middleware/common.go:32	real response: &{Success:status_msg:"success"}
+2023-09-03T12:39:30.166+0800	DEBUG	middleware/common.go:25	real request: &{Req:token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6NCwiZXhwIjoxNjkzMjI1NjcyfQ.M3VDgT9DNOhfxryQ3wTLN2JoXdx3DWOyPUc66bcWqeE"  to_user_id:2  action_type:1}
+2023-09-03T12:39:30.167+0800	DEBUG	middleware/common.go:27	remote service name: TiktokRelationServer, remote method: RelationAction
+2023-09-03T12:39:30.167+0800	INFO	middleware/server.go:18	client address: [::1]:49690
+2023-09-03T12:39:30.168+0800	INFO	middleware/common.go:32	real response: &{Success:status_code:-1  status_msg:"token 解析错误"}
+2023-09-03T13:03:34.536+0800	INFO	etcd/registry.go:142	stop keepalive lease 18f8a5939fa7a23 for etcd registry

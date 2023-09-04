@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bytedance-summer-camp-2023/tiktok/dal/redis"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/gocron"
 )
 
 const frequency = 10
@@ -46,11 +45,4 @@ func consume() error {
 		}
 	}
 	return nil
-}
-
-// gocron定时任务,每隔一段时间就让Consumer消费消息队列的所有消息
-func GoCron() {
-	s := gocron.NewSchedule()
-	s.Every(frequency).Tag("favoriteMQ").Seconds().Do(consume)
-	s.StartAsync()
 }

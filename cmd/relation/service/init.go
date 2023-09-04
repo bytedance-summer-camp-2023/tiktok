@@ -1,4 +1,3 @@
-// Package service /*
 package service
 
 import (
@@ -22,6 +21,6 @@ var (
 func Init(signingKey string) {
 	Jwt = jwt.NewJWT([]byte(signingKey))
 	privateKey, _ = tool.ReadKeyFromFile(tool.PrivateKeyFilePath)
-	//GoCron()
+
 	go consume()
 }

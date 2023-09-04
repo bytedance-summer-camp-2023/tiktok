@@ -60,7 +60,7 @@ func init() {
 	}))
 
 	// other tables will be automatically changed
-	if err := _db.AutoMigrate(&User{}, &Video{}); err != nil {
+	if err := _db.AutoMigrate(&User{}, &Video{}, &Comment{}, &FavoriteVideoRelation{}, &FollowRelation{}); err != nil {
 		zapLogger.Fatalln(err.Error())
 	}
 

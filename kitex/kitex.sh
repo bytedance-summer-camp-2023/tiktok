@@ -6,6 +6,4 @@ kitex -module github.com/bytedance-summer-camp-2023/tiktok -I ./ -v -service rel
 
 kitex -module github.com/bytedance-summer-camp-2023/tiktok -I ./ -v -service favoritesrv favorite.proto
 
-kitex -module github.com/bytedance-summer-camp-2023/tiktok -I ./ -v -service messagesrv message.proto
-
 kitex -module github.com/bytedance-summer-camp-2023/tiktok -I ./ -v -service videosrv video.proto

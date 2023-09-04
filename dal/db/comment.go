@@ -20,7 +20,7 @@ type Comment struct {
 }
 
 func (Comment) TableName() string {
-	return "Comments"
+	return "comments"
 }
 
 func CreateComment(ctx context.Context, comment *Comment) error {
