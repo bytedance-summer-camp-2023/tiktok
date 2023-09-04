@@ -6,15 +6,12 @@
 |     cmd     |    api     |            api 服务代码            |                       包含http server 和 RPC client                        |
 |             |  comment   |         comment 微服务代码          |                                                                         |
 |             |  favorite  |         favorite 微服务代码         |                                                                         |
-|             |  message   |         message 微服务代码          |                                                                         |
 |             |  relation  |         relation 微服务代码         |                                                                         |
 |             |    user    |           user 微服务代码           |                                                                         |
 |             |   video    |          video 微服务代码           |                                                                         |
 |   config    |            |         微服务以及第三方包的配置文件         |                                                                         |
 |     dal     |     db     |          操作 MySQL 代码           |                   包含 Gorm 初始化、Gorm 结构体以及 MySQL 的操作逻辑                    |
 |             |   redis    |          操作 Redis 的代码          |       包含 go-redis 初始化、Redis 结构体、Redis 操作逻辑以及 Redis 与MySQL 数据同步的逻辑       |
-| dockerfiles |    api     |     API 服务的 DockerFIle 文件      |                                                                         |
-|             |    rpc     |     RPC 服务的 DockerFile 文件      |                                                                         |
 |  internal   |  response  |            封装返回的结构体            |                                                                         |
 |             |    tool    |          封装项目中常用的工具函数          |               包含 RSA、MD5、SHA256 等加密算法以及操作 ffmpeg 对上传视频截图                |
 |    kitex    |            | 包含 proto 文件以及由 Kitex 生成的 go 代码 |                     Kitex 生成的 Go 代码在 Kitex_gen 子目录下                     |
@@ -28,7 +25,7 @@
 |             |  rabbitmq  |              消息队列              |                                                                         |
 |             |   viper    |              配置读取              |                                                                         |
 |             |    zap     |           日志打印与日志切割            |                                                                         |
-|   scripts   |            |             存放启动脚本             | 包含使用 Docker 启动的 MySQL、Redis、etcd、nginx、rabbitmq、minio 等，以及 MySQL主从复制的配置 |
+|   scripts   |            |             存放启动脚本             | 包含使用 Docker 启动的 MySQL、Redis、etcd、rabbitmq、minio 等 |
 
 树形结构
 ```bash
@@ -40,7 +37,6 @@
 │   │   ├── handler
 │   │   │   ├── comment.go
 │   │   │   ├── favorite.go
-│   │   │   ├── message.go
 │   │   │   ├── relation.go
 │   │   │   ├── user.go
 │   │   │   └── video.go
@@ -49,7 +45,6 @@
 │   │       ├── comment.go
 │   │       ├── favorite.go
 │   │       ├── init.go
-│   │       ├── message.go
 │   │       ├── relation.go
 │   │       ├── user.go
 │   │       └── video.go
@@ -70,14 +65,6 @@
 │   │       ├── handler.go
 │   │       ├── init.go
 │   │       └── timer.go
-│   ├── message
-│   │   ├── build.sh
-│   │   ├── main.go
-│   │   ├── script
-│   │   │   └── bootstrap.sh
-│   │   └── service
-│   │       ├── handler.go
-│   │       └── init.go
 │   ├── relation
 │   │   ├── build.sh
 │   │   ├── main.go
@@ -111,16 +98,8 @@
 │   ├── db.yml
 │   ├── favorite.yml
 │   ├── log.yml
-│   ├── message.yml
 │   ├── minio.yml
-│   ├── nginx
-│   │   └── conf
-│   │       ├── conf.d
-│   │       │   ├── api_http_proxy.conf
-│   │       │   └── api_https_proxy.conf
-│   │       └── nginx.conf
 │   ├── rabbitmq.yml
-│   ├── redis.conf
 │   ├── relation.yml
 │   ├── user.yml
 │   └── video.yml
@@ -130,7 +109,6 @@
 │   │   ├── favorite.go
 │   │   ├── feed.go
 │   │   ├── init.go
-│   │   ├── message.go
 │   │   ├── publish.go
 │   │   ├── relation.go
 │   │   └── user.go
@@ -138,25 +116,7 @@
 │       ├── common.go
 │       ├── favorite.go
 │       ├── init.go
-│       ├── message.go
 │       └── relation.go
-├── docker-compose.yml
-├── dockerfiles
-│   ├── api
-│   │   └── Dockerfile
-│   └── rpc
-│       ├── comment
-│       │   └── Dockerfile
-│       ├── favorite
-│       │   └── Dockerfile
-│       ├── message
-│       │   └── Dockerfile
-│       ├── relation
-│       │   └── Dockerfile
-│       ├── user
-│       │   └── Dockerfile
-│       └── video
-│           └── Dockerfile
 ├── go.mod
 ├── go.sum
 ├── internal
@@ -164,13 +124,11 @@
 │   │   ├── base.go
 │   │   ├── comment.go
 │   │   ├── favorite.go
-│   │   ├── message.go
 │   │   ├── relation.go
 │   │   ├── user.go
 │   │   └── video.go
 │   └── tool
 │       ├── crypt.go
-│       ├── crypt_test.go
 │       └── snapshot.go
 ├── kitex
 │   ├── comment.proto
@@ -192,14 +150,6 @@
 │   │   │       ├── client.go
 │   │   │       ├── favoriteservice.go
 │   │   │       ├── invoker.go
-│   │   │       └── server.go
-│   │   ├── message
-│   │   │   ├── message.pb.fast.go
-│   │   │   ├── message.pb.go
-│   │   │   └── messageservice
-│   │   │       ├── client.go
-│   │   │       ├── invoker.go
-│   │   │       ├── messageservice.go
 │   │   │       └── server.go
 │   │   ├── relation
 │   │   │   ├── relation.pb.fast.go
@@ -225,23 +175,12 @@
 │   │           ├── invoker.go
 │   │           ├── server.go
 │   │           └── videoservice.go
-│   ├── message.proto
 │   ├── relation.proto
 │   ├── user.proto
 │   └── video.proto
 ├── pic
-│   ├── 测试-favorite-1.png
-│   ├── 测试-favorite-2.png
-│   ├── 测试-favorite-3.png
-│   ├── 测试-feed-1.png
-│   ├── 测试-feed-2.png
-│   ├── 测试-relation-1.png
-│   ├── 抖声_ER图.png
-│   ├── 抖声_后端架构图.png
-│   └── 点赞关注同步机制.png
+│   ├── 后端架构图.png
 ├── pkg
-│   ├── async
-│   │   └── async.go
 │   ├── errno
 │   │   ├── code.go
 │   │   └── errno.go
@@ -256,54 +195,28 @@
 │   │   ├── jwt.go
 │   │   └── jwt_test.go
 │   ├── middleware
-│   │   ├── auth.go
-│   │   ├── auth_test.go
 │   │   ├── client.go
 │   │   ├── common.go
-│   │   ├── limit.go
-│   │   ├── limit_init.go
-│   │   ├── limit_test.go
-│   │   ├── log.go
 │   │   ├── server.go
-│   │   ├── test_util.go
-│   │   ├── tls.go
-│   │   └── tls_test.go
 │   ├── minio
 │   │   ├── init.go
 │   │   ├── minio.go
-│   │   └── minio_test.go
 │   ├── rabbitmq
 │   │   ├── emit_logs.go
 │   │   ├── init.go
 │   │   ├── rabbitmq.go
-│   │   ├── rabbitmq_test.go
 │   │   └── receive_logs.go
 │   ├── viper
 │   │   └── viper.go
 │   └── zap
 │       └── zap.go
 ├── scripts
-│   ├── db_tiktok.sql
-│   ├── etcd
-│   │   ├── client.sh
-│   │   ├── network.sh
-│   │   └── server.sh
-│   ├── etcd.sh
-│   ├── ffmpeg.sh
-│   ├── microservice
-│   │   ├── api.sh
-│   │   ├── comment.sh
-│   │   ├── favorite.sh
-│   │   ├── message.sh
-│   │   ├── relation.sh
-│   │   ├── user.sh
-│   │   └── video.sh
-│   ├── minio.sh
-│   ├── nginx.sh
-│   ├── rabbitmq.sh
-│   └── redis.sh
-├── shutdown.sh
-└── startup.sh
+├── etcd
+├── minio
+├── mysql
+├── rabbitmq
+├── redis
+└── docker-compose.yml
 
 
 ```
@@ -314,13 +227,13 @@
 cd scripts
 docker-compose up -d
 ```
-然后启动各个微服务即可
-
+然后启动cmd文件夹内个微服务文件夹的主函数以及api文件夹的主函数
+(mysql需要手动创建db_tiktok数据库,该数据库名在config/db.tml中定义)
 ---
 
 # 2.项目实现
 ## 2.1 技术选型与相关开发文档
-本项目包含三大类接口：基础接口、互动接口、社交接口。采用微服务架构以及 Docker 部署的方式。总共需要 16G 存储空间，1 台服务器，项目中所需要的数据库以及中间件均由 Docker 下载并挂载运行。
+本项目包含三大类接口：基础接口、互动接口、社交接口。采用微服务架构以及 Docker 部署的方式。总共需要 4G 存储空间，1 台服务器，项目中所需要的数据库以及中间件均由 Docker 下载并挂载运行。
 
 以下是开发文档。
 
