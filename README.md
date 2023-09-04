@@ -211,12 +211,12 @@
 │   └── zap
 │       └── zap.go
 ├── scripts
-├── etcd
-├── minio
-├── mysql
-├── rabbitmq
-├── redis
-└── docker-compose.yml
+│   ├── etcd
+│   ├── minio
+│   ├── mysql
+│   ├── rabbitmq
+│   ├── redis
+│   └── docker-compose.yml
 
 
 ```
@@ -227,9 +227,8 @@
 cd scripts
 docker-compose up -d
 ```
-然后启动cmd文件夹内个微服务文件夹的主函数以及api文件夹的主函数
+然后启动cmd文件夹内各个微服务文件夹的主函数以及api文件夹的主函数
 (mysql需要手动创建db_tiktok数据库,该数据库名在config/db.tml中定义)
----
 
 # 2.项目实现
 ## 2.1 技术选型与相关开发文档
