@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
+	prometheus "github.com/kitex-contrib/monitor-prometheus"
 	"time"
 
 	user "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
@@ -36,6 +37,7 @@ func InitUser(config *viper.Config) {
 		client.WithConnectTimeout(30000*time.Millisecond), // conn timeout
 		client.WithFailureRetry(retry.NewFailurePolicy()), // retry
 		//client.WithSuite(tracing.NewClientSuite()),        // tracer
+		client.WithTracer(prometheus.NewClientTracer(":9091", "/kitexclient")),
 		client.WithResolver(r), // resolver
 		// Please keep the same as provider.WithServiceName
 		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}),

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/cloudwego/kitex/pkg/limit"
+	prometheus "github.com/kitex-contrib/monitor-prometheus"
 	"net"
 
 	"github.com/bytedance-summer-camp-2023/tiktok/cmd/user/service"
@@ -50,6 +51,7 @@ func main() {
 		server.WithRegistry(r),
 		server.WithLimit(&limit.Option{MaxConnections: 1000, MaxQPS: 100}),
 		server.WithMuxTransport(),
+		server.WithTracer(prometheus.NewServerTracer(":9092", "/kitexserver")),
 		//server.WithSuite(tracing.NewServerSuite()),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}),
 	)

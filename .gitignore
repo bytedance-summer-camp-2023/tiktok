@@ -21,8 +21,9 @@
 go.work
 
 .idea
-scripts/etcd
-scripts/redis
-scripts/mysql
-scripts/minio
-scripts/rabbitmq
+
+logs/
+
+scripts/
+!scripts/docker-compose.yml
+!scripts/prometheus.yml
