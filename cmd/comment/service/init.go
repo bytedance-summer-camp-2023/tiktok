@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/jwt"
+	"tiktok/pkg/jwt"
 )
 
 var (

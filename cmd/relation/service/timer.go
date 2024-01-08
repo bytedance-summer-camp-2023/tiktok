@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/redis"
+	"tiktok/dal/redis"
 )
 
 const frequency = 10

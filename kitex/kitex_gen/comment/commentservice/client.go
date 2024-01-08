@@ -4,9 +4,9 @@ package commentservice
 
 import (
 	"context"
-	comment "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/comment"
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
+	comment "tiktok/kitex/kitex_gen/comment"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.

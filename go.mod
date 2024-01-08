@@ -1,4 +1,4 @@
-module github.com/bytedance-summer-camp-2023/tiktok
+module tiktok
 
 go 1.19
 

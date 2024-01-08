@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/db"
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/redis"
-	favorite "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/favorite"
-	user "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
-	video "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/video"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/minio"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/rabbitmq"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
+	"tiktok/dal/db"
+	"tiktok/dal/redis"
+	favorite "tiktok/kitex/kitex_gen/favorite"
+	user "tiktok/kitex/kitex_gen/user"
+	video "tiktok/kitex/kitex_gen/video"
+	"tiktok/pkg/minio"
+	"tiktok/pkg/rabbitmq"
+	"tiktok/pkg/zap"
 )
 
 // FavoriteServiceImpl implements the last service interface defined in the IDL.

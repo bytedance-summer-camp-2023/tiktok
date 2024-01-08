@@ -3,9 +3,9 @@ package service
 import (
 	"bytes"
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/internal/tool"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/minio"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
+	"tiktok/internal/tool"
+	"tiktok/pkg/minio"
+	"tiktok/pkg/zap"
 )
 
 // uploadVideo 上传视频至 Minio

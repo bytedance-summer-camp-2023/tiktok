@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/comment/commentservice"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"net"
+	"tiktok/kitex/kitex_gen/comment/commentservice"
+	"tiktok/pkg/etcd"
+	"tiktok/pkg/middleware"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/cmd/comment/service"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
+	"tiktok/cmd/comment/service"
+	"tiktok/pkg/viper"
+	"tiktok/pkg/zap"
 )
 
 var (

@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"github.com/redis/go-redis/v9"
+	"tiktok/pkg/viper"
+	"tiktok/pkg/zap"
 )
 
 const ExpireTime = 6 * time.Second

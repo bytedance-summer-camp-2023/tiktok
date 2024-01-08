@@ -11,9 +11,9 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"io/ioutil"
 	"os"
+	"tiktok/pkg/viper"
 )
 
 // 提供各种加密算法

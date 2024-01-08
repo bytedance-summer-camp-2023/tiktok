@@ -3,8 +3,8 @@
 package favoriteservice
 
 import (
-	favorite "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/favorite"
 	server "github.com/cloudwego/kitex/server"
+	favorite "tiktok/kitex/kitex_gen/favorite"
 )
 
 // NewInvoker creates a server.Invoker with the given handler and options.

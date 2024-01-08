@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"github.com/cloudwego/kitex/pkg/discovery"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"tiktok/pkg/zap"
 )
 
 const (

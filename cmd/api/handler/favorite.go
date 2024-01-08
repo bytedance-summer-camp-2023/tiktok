@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/cmd/api/rpc"
-	"github.com/bytedance-summer-camp-2023/tiktok/internal/response"
-	kitex "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/favorite"
+	"tiktok/cmd/api/rpc"
+	"tiktok/internal/response"
+	kitex "tiktok/kitex/kitex_gen/favorite"
 )
 
 func FavoriteAction(ctx context.Context, c *app.RequestContext) {

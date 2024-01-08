@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/errno"
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
+	"tiktok/pkg/errno"
 )
 
 type FavoriteVideoRelation struct {

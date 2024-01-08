@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/db"
-	comment "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/comment"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/minio"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"gorm.io/gorm"
+	"tiktok/dal/db"
+	comment "tiktok/kitex/kitex_gen/comment"
+	"tiktok/kitex/kitex_gen/user"
+	"tiktok/pkg/minio"
+	"tiktok/pkg/zap"
 	"time"
 )
 

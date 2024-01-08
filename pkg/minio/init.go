@@ -1,7 +1,7 @@
 package minio
 
 import (
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
+	"tiktok/pkg/viper"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"

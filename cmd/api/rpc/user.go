@@ -3,16 +3,16 @@ package rpc
 import (
 	"context"
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
+	"tiktok/pkg/etcd"
+	"tiktok/pkg/middleware"
 	"time"
 
-	user "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user/userservice"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	user "tiktok/kitex/kitex_gen/user"
+	"tiktok/kitex/kitex_gen/user/userservice"
+	"tiktok/pkg/viper"
 )
 
 var (

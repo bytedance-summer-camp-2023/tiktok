@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
+	"tiktok/kitex/kitex_gen/user"
 )
 
 type Register struct {

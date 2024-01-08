@@ -1,6 +1,6 @@
 package rpc
 
-import "github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
+import "tiktok/pkg/viper"
 
 func init() {
 	// user rpc

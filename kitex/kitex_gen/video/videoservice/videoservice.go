@@ -4,11 +4,11 @@ package videoservice
 
 import (
 	"context"
-	video "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/video"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
 	streaming "github.com/cloudwego/kitex/pkg/streaming"
 	proto "google.golang.org/protobuf/proto"
+	video "tiktok/kitex/kitex_gen/video"
 )
 
 func serviceInfo() *kitex.ServiceInfo {

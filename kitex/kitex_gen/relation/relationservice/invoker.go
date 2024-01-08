@@ -3,8 +3,8 @@
 package relationservice
 
 import (
-	relation "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/relation"
 	server "github.com/cloudwego/kitex/server"
+	relation "tiktok/kitex/kitex_gen/relation"
 )
 
 // NewInvoker creates a server.Invoker with the given handler and options.

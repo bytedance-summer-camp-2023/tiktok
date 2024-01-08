@@ -1,7 +1,7 @@
 package zap
 
 import (
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
+	"tiktok/pkg/viper"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

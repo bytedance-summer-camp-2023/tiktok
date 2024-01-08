@@ -3,14 +3,14 @@ package db
 
 import (
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"gorm.io/gorm/logger"
+	"tiktok/pkg/zap"
 	"time"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
+	"tiktok/pkg/viper"
 )
 
 var (

@@ -5,14 +5,14 @@ import (
 	"github.com/cloudwego/kitex/pkg/limit"
 	"net"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/cmd/user/service"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user/userservice"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	"tiktok/cmd/user/service"
+	"tiktok/kitex/kitex_gen/user/userservice"
+	"tiktok/pkg/etcd"
+	"tiktok/pkg/middleware"
+	"tiktok/pkg/viper"
+	"tiktok/pkg/zap"
 )
 
 var (

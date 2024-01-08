@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	video "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/video"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/video/videoservice"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	video "tiktok/kitex/kitex_gen/video"
+	"tiktok/kitex/kitex_gen/video/videoservice"
+	"tiktok/pkg/etcd"
+	"tiktok/pkg/middleware"
+	"tiktok/pkg/viper"
 )
 
 var (

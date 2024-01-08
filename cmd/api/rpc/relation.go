@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"time"
 
-	relation "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/relation"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/relation/relationservice"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	relation "tiktok/kitex/kitex_gen/relation"
+	"tiktok/kitex/kitex_gen/relation/relationservice"
+	"tiktok/pkg/etcd"
+	"tiktok/pkg/middleware"
+	"tiktok/pkg/viper"
 )
 
 var (
