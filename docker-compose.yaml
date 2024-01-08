@@ -1,0 +1,205 @@
+version: "3.9"
+services:
+  rdb:
+    container_name: "TikTok-Extra-MySQL"
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: tiktok123
+      MYSQL_DATABASE: tiktokdb
+      MYSQL_USER: tiktok
+      MYSQL_PASSWORD: tiktok123
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  pyroscope:
+    container_name: "TikTok-Extra-Pyroscope"
+    image: pyroscope/pyroscope
+    command:
+      - server
+    ports:
+      - "4040:4040"
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --spider -q http://localhost:4040/healthz || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  consul:
+    container_name: "TikTok-Extra-Consul"
+    image: consul:1.15.4
+    command: [
+      "agent",
+      "-dev",
+      "-client=0.0.0.0"
+    ]
+    ports:
+      - "8500:8500"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8500/v1/status/leader" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  redis:
+    container_name: "TikTok-Extra-Redis"
+    image: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  jaeger:
+    container_name: "TikTok-Extra-Jaeger"
+    image: jaegertracing/all-in-one
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+      - "6831:6831"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --spider -q http://localhost:16686/search || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  victoriametrics:
+    container_name: "TikTok-Extra-VictoriaMetrics"
+    image: victoriametrics/victoria-metrics
+    ports:
+      - "8428:8428"
+      - "8089:8089"
+      - "8089:8089/udp"
+      - "2003:2003"
+      - "2003:2003/udp"
+      - "4242:4242"
+    command:
+      - '--storageDataPath=/storage'
+      - '--graphiteListenAddr=:2003'
+      - '--opentsdbListenAddr=:4242'
+      - '--httpListenAddr=:8428'
+      - '--influxListenAddr=:8089'
+    restart: always
+  grafana:
+    container_name: "TikTok-Extra-Grafana"
+    image: grafana/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"
+  elasticsearch:
+    image: elasticsearch:7.17.12
+    container_name: "TikTok-Extra-ElasticSearch"
+    restart: always
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  kibana:
+    image: kibana:7.17.12
+    container_name: "TikTok-Extra-Kibana"
+    restart: always
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      I18N_LOCALE: zh-CN
+    ports:
+      - "5601:5601"
+  influxdb:
+    container_name: "TikTok-Extra-InfluxDB"
+    image: tutum/influxdb
+    ports:
+      - "8083:8083"
+      - "8011:8086"
+  rabbitmq:
+    container_name: "TikTok-Extra-RabbitMQ"
+    image: epicmo/rabbitmq-manager:1.0
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmqctl status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  prometheus:
+    container_name: "TikTok-Extra-Prometheus"
+    image:  bitnami/prometheus:latest
+    volumes:
+      - ./promethus.docker.compose.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+    ports:
+      - "9090:9090"
+  gorse-master:
+    image: zhenghaoz/gorse-master
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+      - "8088:8088"
+    environment:
+      GORSE_CACHE_STORE: redis://redis:6379
+      GORSE_DATA_STORE: mysql://tiktok:tiktok123@rdb/tiktokdb?sslmode=disable
+    command: >
+      -c /etc/gorse/config.toml 
+      --log-path /var/log/gorse/master.log 
+      --cache-path /var/lib/gorse/master_cache.data
+    volumes:
+      - ./gorse-config.docker.compose.toml:/etc/gorse/config.toml
+    depends_on:
+      redis:
+        condition: service_healthy
+      rdb:
+        condition: service_healthy
+  gorse-worker:
+    image: zhenghaoz/gorse-worker
+    restart: unless-stopped
+    ports:
+      - "8099:8099"
+    command: >
+      --master-host gorse-master --master-port 8086 
+      --http-host 0.0.0.0 --http-port 8099
+      --log-path /var/log/gorse/worker.log 
+      --cache-path /var/lib/gorse/worker_cache.data
+    depends_on:
+      - gorse-master
+  gorse-server:
+    image: zhenghaoz/gorse-server
+    restart: unless-stopped
+    ports:
+      - "8087:8087"
+    command: >
+      --master-host gorse-master --master-port 8086 
+      --http-host 0.0.0.0 --http-port 8087
+      --log-path /var/log/gorse/server.log 
+      --cache-path /var/lib/gorse/server_cache.data
+    depends_on:
+      - gorse-master
+  static:
+    image: nginx
+    container_name: "TikTok-StaticServer"
+    ports:
+      - "8066:80"
+    volumes:
+      - share-volume:/usr/share/nginx/html/
+volumes:
+  share-volume:
