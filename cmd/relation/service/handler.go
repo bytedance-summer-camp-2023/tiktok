@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/db"
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/redis"
-	relation "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/relation"
-	user "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/minio"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/rabbitmq"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"strings"
+	"tiktok/dal/db"
+	"tiktok/dal/redis"
+	relation "tiktok/kitex/kitex_gen/relation"
+	user "tiktok/kitex/kitex_gen/user"
+	"tiktok/pkg/minio"
+	"tiktok/pkg/rabbitmq"
+	"tiktok/pkg/zap"
 	"time"
 )
 

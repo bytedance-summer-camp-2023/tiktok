@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/db"
-	"github.com/bytedance-summer-camp-2023/tiktok/internal/tool"
-	user "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/jwt"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/minio"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"math/rand"
+	"tiktok/dal/db"
+	"tiktok/internal/tool"
+	user "tiktok/kitex/kitex_gen/user"
+	"tiktok/pkg/jwt"
+	"tiktok/pkg/minio"
+	"tiktok/pkg/zap"
 	"time"
 )
 

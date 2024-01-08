@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/db"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/gocron"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"github.com/go-redsync/redsync/v4"
 	"strconv"
 	"strings"
+	"tiktok/dal/db"
+	"tiktok/pkg/gocron"
+	"tiktok/pkg/zap"
 	"time"
 )
 

@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/cmd/api/rpc"
-	"github.com/bytedance-summer-camp-2023/tiktok/internal/response"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
-	kitex "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
+	"tiktok/cmd/api/rpc"
+	"tiktok/internal/response"
+	"tiktok/kitex/kitex_gen/user"
+	kitex "tiktok/kitex/kitex_gen/user"
 )
 
 type UserReq struct {

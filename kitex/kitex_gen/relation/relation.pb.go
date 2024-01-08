@@ -8,11 +8,11 @@ package relation
 
 import (
 	context "context"
-	user "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+	user "tiktok/kitex/kitex_gen/user"
 )
 
 const (
@@ -22,7 +22,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-//  ============================关注or取消关注===================================
+// ============================关注or取消关注===================================
 type RelationActionRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -142,7 +142,7 @@ func (x *RelationActionResponse) GetStatusMsg() string {
 	return ""
 }
 
-//  ==============================关注列表========================================
+// ==============================关注列表========================================
 type RelationFollowListRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -261,7 +261,7 @@ func (x *RelationFollowListResponse) GetUserList() []*user.User {
 	return nil
 }
 
-//  ==============================粉丝列表=======================================
+// ==============================粉丝列表=======================================
 type RelationFollowerListRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -380,7 +380,7 @@ func (x *RelationFollowerListResponse) GetUserList() []*user.User {
 	return nil
 }
 
-//  ==============================好友列表=======================================
+// ==============================好友列表=======================================
 type RelationFriendListRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

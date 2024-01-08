@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
+	"tiktok/pkg/zap"
 
 	"github.com/cloudwego/kitex/pkg/registry"
 	clientv3 "go.etcd.io/etcd/client/v3"

@@ -3,14 +3,14 @@ package rpc
 import (
 	"context"
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/comment"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/comment/commentservice"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	"tiktok/kitex/kitex_gen/comment"
+	"tiktok/kitex/kitex_gen/comment/commentservice"
+	"tiktok/pkg/etcd"
+	"tiktok/pkg/middleware"
+	"tiktok/pkg/viper"
 	"time"
 )
 

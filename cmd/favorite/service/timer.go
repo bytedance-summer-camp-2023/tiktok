@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/dal/redis"
+	"tiktok/dal/redis"
 )
 
 const frequency = 10

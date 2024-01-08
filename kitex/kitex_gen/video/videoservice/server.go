@@ -2,8 +2,8 @@
 package videoservice
 
 import (
-	video "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/video"
 	server "github.com/cloudwego/kitex/server"
+	video "tiktok/kitex/kitex_gen/video"
 )
 
 // NewServer creates a server.Server with the given handler and options.

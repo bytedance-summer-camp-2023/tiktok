@@ -6,13 +6,13 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/cmd/relation/service"
-	"github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/relation/relationservice"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/etcd"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/middleware"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"github.com/cloudwego/kitex/server"
+	"tiktok/cmd/relation/service"
+	"tiktok/kitex/kitex_gen/relation/relationservice"
+	"tiktok/pkg/etcd"
+	"tiktok/pkg/middleware"
+	"tiktok/pkg/viper"
+	"tiktok/pkg/zap"
 )
 
 var (

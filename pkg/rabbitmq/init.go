@@ -3,10 +3,10 @@ package rabbitmq
 import (
 	"fmt"
 
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
-	z "github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"go.uber.org/zap"
+	"tiktok/pkg/viper"
+	z "tiktok/pkg/zap"
 )
 
 var (

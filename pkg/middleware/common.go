@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"context"
-	z "github.com/bytedance-summer-camp-2023/tiktok/pkg/zap"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"go.uber.org/zap"
+	z "tiktok/pkg/zap"
 )
 
 var (

@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bytedance-summer-camp-2023/tiktok/cmd/api/handler"
-	"github.com/bytedance-summer-camp-2023/tiktok/pkg/viper"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/network/standard"
+	"tiktok/cmd/api/handler"
+	"tiktok/pkg/viper"
 )
 
 var (

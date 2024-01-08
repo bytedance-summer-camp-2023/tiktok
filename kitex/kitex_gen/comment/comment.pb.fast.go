@@ -4,8 +4,8 @@ package comment
 
 import (
 	fmt "fmt"
-	user "github.com/bytedance-summer-camp-2023/tiktok/kitex/kitex_gen/user"
 	fastpb "github.com/cloudwego/fastpb"
+	user "tiktok/kitex/kitex_gen/user"
 )
 
 var (
