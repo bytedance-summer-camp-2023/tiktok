@@ -32,7 +32,7 @@
 .
 ├── LICENSE
 ├── README.md
-├── cmd
+├── services
 │   ├── api
 │   │   ├── handler
 │   │   │   ├── comment.go
@@ -91,7 +91,7 @@
 │           ├── handler.go
 │           ├── init.go
 │           └── upload.go
-├── config
+├── constant
 │   ├── api.yml
 │   ├── comment.yml
 │   ├── crypt.yml
@@ -103,7 +103,7 @@
 │   ├── relation.yml
 │   ├── user.yml
 │   └── video.yml
-├── dal
+├── storage
 │   ├── db
 │   │   ├── comment.go
 │   │   ├── favorite.go
@@ -180,7 +180,7 @@
 │   └── video.proto
 ├── pic
 │   ├── 后端架构图.png
-├── pkg
+├── utils
 │   ├── errno
 │   │   ├── code.go
 │   │   └── errno.go
