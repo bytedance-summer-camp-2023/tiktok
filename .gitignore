@@ -24,3 +24,4 @@ go.work
 scripts/mysql
 scripts/redis
 scripts/minio
+output
