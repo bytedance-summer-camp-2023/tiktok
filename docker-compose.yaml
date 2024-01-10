@@ -164,7 +164,7 @@ services:
       --log-path /var/log/gorse/master.log 
       --cache-path /var/lib/gorse/master_cache.data
     volumes:
-      - ./gorse-config.docker.compose.toml:/etc/gorse/config.toml
+      - ./gorse-constant.docker.compose.toml:/etc/gorse/constant.toml
     depends_on:
       redis:
         condition: service_healthy
