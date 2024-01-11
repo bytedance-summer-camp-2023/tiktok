@@ -1,7 +1,9 @@
 package logging
 
 import (
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
+	"github.com/uber/jaeger-client-go"
 	"os"
 	"tiktok/src/constant/config"
 )
@@ -38,5 +40,13 @@ func LogMethod(name string) *log.Entry {
 func LogService(name string) *log.Entry {
 	return Logger.WithFields(log.Fields{
 		"Service": name,
+	})
+}
+
+func GetSpanLogger(span opentracing.Span, method string) *log.Entry {
+	return log.WithFields(log.Fields{
+		"operation": method,
+		"trace_id":  span.Context().(jaeger.SpanContext).TraceID().String(),
+		"span_id":   span.Context().(jaeger.SpanContext).SpanID().String(),
 	})
 }
