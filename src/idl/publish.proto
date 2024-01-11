@@ -1,7 +1,7 @@
 syntax = "proto3";
 import "feed.proto";
 package rpc.publish;
-option go_package = "TikTok/src/rpc/publish";
+option go_package = "rpc/publish";
 
 message CreateVideoRequest {
   uint32 actor_id = 1; // 用户id
@@ -10,7 +10,7 @@ message CreateVideoRequest {
 }
 
 message CreateVideoResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  uint32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
 }
 
@@ -20,8 +20,8 @@ message ListVideoRequest{
 }
 
 message ListVideoResponse{
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
+  uint32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
   repeated feed.Video video_list = 3; // 视频列表
 }
 
@@ -30,8 +30,8 @@ message CountVideoRequest{
 }
 
 message CountVideoResponse{
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
+  uint32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
   uint32 count = 3; // 视频数量
 }
 

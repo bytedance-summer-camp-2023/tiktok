@@ -1,7 +1,7 @@
 syntax = "proto3";
 import "feed.proto";
 package rpc.favorite;
-option go_package = "TikTok/src/rpc/favorite";
+option go_package = "rpc/favorite";
 
 message FavoriteRequest {
   uint32 actor_id = 1; // 用户id
@@ -10,8 +10,8 @@ message FavoriteRequest {
 }
 
 message FavoriteResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
+  uint32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
 }
 
 message FavoriteListRequest {
@@ -20,20 +20,18 @@ message FavoriteListRequest {
 }
 
 message FavoriteListResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
+  uint32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
   repeated feed.Video video_list = 3; // 用户点赞视频列表
 }
 
 message IsFavoriteRequest {
-  uint32 actor_id = 1; // 用户id
+  uint32 user_id = 1; // 用户id
   uint32 video_id = 2; // 视频id
 }
 
 message IsFavoriteResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
-  bool result = 3; // 结果
+  bool result = 1; // 结果
 }
 
 message CountFavoriteRequest {
@@ -41,8 +39,8 @@ message CountFavoriteRequest {
 }
 
 message CountFavoriteResponse {
-  int32 status_code = 1;
-  string status_msg = 2;
+  uint32 status_code = 1;
+  optional string status_msg = 2;
   uint32 count = 3; // 点赞数
 }
 
@@ -51,8 +49,8 @@ message CountUserFavoriteRequest {
 }
 
 message CountUserFavoriteResponse {
-  int32 status_code = 1;
-  string status_msg = 2;
+  uint32 status_code = 1;
+  optional string status_msg = 2;
   uint32 count = 3; // 点赞数
 }
 
@@ -62,8 +60,8 @@ message CountUserTotalFavoritedRequest {
 }
 
 message CountUserTotalFavoritedResponse {
-  int32 status_code = 1;
-  string status_msg = 2;
+  uint32 status_code = 1;
+  optional string status_msg = 2;
   uint32 count = 3; // 点赞数
 }
 

@@ -1,7 +1,7 @@
 syntax = "proto3";
 import "user.proto";
 package rpc.Relation;
-option go_package = "TikTok/src/rpc/relation";
+option go_package = "rpc/relation";
 
 
 message RelationActionRequest {
@@ -10,7 +10,7 @@ message RelationActionRequest {
 }
 
 message RelationActionResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  uint32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
 }
 
@@ -73,9 +73,7 @@ message IsFollowRequest {
 }
 
 message IsFollowResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
-  bool result = 3; // 结果
+  bool result = 1; // 结果
 }
 
 service RelationService {

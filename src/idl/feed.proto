@@ -1,7 +1,7 @@
 syntax = "proto3";
 import "user.proto";
 package rpc.feed;
-option go_package = "TikTok/src/rpc/feed";
+option go_package = "rpc/feed";
 
 message Video {
   uint32 id = 1;
@@ -20,9 +20,9 @@ message ListFeedRequest {
 }
 
 message ListFeedResponse {
-  int32 status_code = 1;
-  string status_msg = 2;
-  optional uint64 next_time = 3;
+  uint32 status_code = 1;
+  optional string status_msg = 2;
+  optional int64 next_time = 3;
   repeated Video video_list = 4;
 }
 
@@ -32,37 +32,12 @@ message QueryVideosRequest {
 }
 
 message QueryVideosResponse {
-  int32 status_code = 1;
-  string status_msg = 2;
+  uint32 status_code = 1;
+  optional string status_msg = 2;
   repeated Video video_list = 3;
 }
 
-message VideoExistRequest {
-  uint32 video_id = 1; // 视频id
-}
-
-message VideoExistResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
-  bool existed = 3;
-}
-
-message QueryVideoSummaryAndKeywordsRequest {
-  uint32 actor_id = 1;
-  uint32 video_id = 2;
-}
-
-message QueryVideoSummaryAndKeywordsResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
-  string summary = 3;
-  string keywords = 4;
-}
-
 service FeedService {
-  rpc ListVideosByRecommend(ListFeedRequest) returns (ListFeedResponse);
   rpc ListVideos(ListFeedRequest) returns (ListFeedResponse);
   rpc QueryVideos(QueryVideosRequest) returns (QueryVideosResponse);
-  rpc QueryVideoExisted(VideoExistRequest) returns (VideoExistResponse);
-  rpc QueryVideoSummaryAndKeywords(QueryVideoSummaryAndKeywordsRequest) returns (QueryVideoSummaryAndKeywordsResponse);
 }
