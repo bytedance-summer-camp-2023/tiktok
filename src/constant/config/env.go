@@ -13,17 +13,18 @@ type envConfig struct {
 	ConsulAddr          string `env:"CONSUL_ADDR" envDefault:"localhost:8500"`
 	LoggerLevel         string `env:"LOGGER_LEVEL" envDefault:"INFO"`
 	TiedLogging         string `env:"TIED" envDefault:"NONE"`
-	MySQLHost           string `env:"MySQL_HOST"`
-	MySQLPort           string `env:"MySQL_PORT"`
-	MySQLUser           string `env:"MySQL_USER"`
-	MySQLPassword       string `env:"MySQL_PASSWORD"`
-	MySQLDataBase       string `env:"MySQL_DATABASE"`
+	MySQLHost           string `env:"MYSQL_HOST"`
+	MySQLPort           string `env:"MYSQL_PORT"`
+	MySQLUser           string `env:"MYSQL_USER"`
+	MySQLPassword       string `env:"MYSQL_PASSWORD"`
+	MySQLDataBase       string `env:"MYSQL_DATABASE"`
 	StorageType         string `env:"STORAGE_TYPE" envDefault:"fs"`
 	FileSystemStartPath string `env:"FS_PATH" envDefault:"/tmp"`
 	FileSystemBaseUrl   string `env:"FS_BASEURL" envDefault:"http://localhost/"`
 	RedisAddr           string `env:"REDIS_ADDR"`
 	RedisPassword       string `env:"REDIS_PASSWORD" envDefault:""`
 	RedisDB             int    `env:"REDIS_DB" envDefault:"0"`
+	TracingEndPoint     string `env:"TRACING_ENDPOINT"`
 }
 
 func init() {

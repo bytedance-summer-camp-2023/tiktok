@@ -1,18 +1,39 @@
 package main
 
 import (
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"io"
 	"net"
 	"tiktok/src/constant/config"
+	"tiktok/src/gateway/middleware"
 	"tiktok/src/rpc/auth"
 	"tiktok/src/rpc/health"
 	healthImpl "tiktok/src/services/health"
 	"tiktok/src/utils/consul"
+	"tiktok/src/utils/interceptor"
 	"tiktok/src/utils/logging"
 )
 
 func main() {
-	s := grpc.NewServer()
+	tracer, closer, err := middleware.NewTracer(config.AuthRpcServerName)
+	if err != nil {
+		logging.Logger.WithFields(logrus.Fields{
+			"err": err,
+		}).Errorf("Can not init Jaeger")
+		return
+	}
+	defer func(closer io.Closer) {
+		err := closer.Close()
+		if err != nil {
+			logging.Logger.WithFields(logrus.Fields{
+				"err": err,
+			}).Errorf("Error when close closer")
+		}
+	}(closer)
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(interceptor.OpentracingServerInterceptor(tracer)),
+	)
 	log := logging.LogService(config.AuthRpcServerName)
 	lis, err := net.Listen("tcp", config.AuthRpcServerPort)
 
