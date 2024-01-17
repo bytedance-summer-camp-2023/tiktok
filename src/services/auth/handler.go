@@ -218,6 +218,12 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 	if !isUserVerifiedInRedis(ctx, request.Username, request.Password) {
 		// 在数据库中查找用户
 		result := database.Client.Where("user_name = ?", request.Username).Find(&user)
+
+		logger.WithFields(logrus.Fields{
+			"err":      result.Error,
+			"username": request.Username,
+		}).Warnf("AuthService Login Action failed to response with inner err.")
+		logging.SetSpanError(span, result.Error)
 		// 如果在查找过程中发生错误，返回内部错误的响应
 		if result.Error != nil {
 			resp = &auth.LoginResponse{
@@ -248,6 +254,11 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 		// 对用户密码进行哈希处理
 		hashed, errs := hashPassword(ctx, request.Password)
 		if errs != nil {
+			logger.WithFields(logrus.Fields{
+				"err":      errs,
+				"username": request.Username,
+			}).Warnf("AuthService Login Action failed to response with inner err.")
+			logging.SetSpanError(span, errs)
 			resp = &auth.LoginResponse{
 				StatusCode: strings.AuthServiceInnerErrorCode,
 				StatusMsg:  strings.AuthServiceInnerError,
@@ -261,6 +272,11 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 	// 获取用户token
 	token, err := getToken(childCtx, user.ID)
 	if err != nil {
+		logger.WithFields(logrus.Fields{
+			"err":      err,
+			"username": request.Username,
+		}).Warnf("AuthService Login Action failed to response with inner err.")
+		logging.SetSpanError(span, err)
 		resp = &auth.LoginResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -304,11 +320,14 @@ func getToken(ctx context.Context, userId uint) (token string, err error) {
 		redis.Client.Set(ctx, "T2U"+token, userId, 240*time.Hour)
 		return token, nil
 	default:
-		return
+		return token, err
 	}
 }
 
 func hasToken(ctx context.Context, token string) (bool, string, error) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-HasToken")
+	defer span.Finish()
+
 	userId, err := redis.Client.Get(ctx, "T2U"+token).Result()
 	switch {
 	case err == redisLib.Nil: // User do not log in
@@ -323,11 +342,18 @@ func hasToken(ctx context.Context, token string) (bool, string, error) {
 func isUserVerifiedInRedis(ctx context.Context, username string, password string) bool {
 	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-VerifiedLogUserInfo")
 	defer span.Finish()
+	logger := logging.GetSpanLogger(span, "Redis.VerifiedLogUserInfo")
+
 	saved, err := redis.Client.Get(ctx, "UserLog"+username).Result()
 	switch {
 	case err == redisLib.Nil: // User do not log in
 		return false
 	case err != nil:
+		logger.WithFields(logrus.Fields{
+			"err":      err,
+			"username": username,
+		}).Warnf("Redis have a trouble when verifying user's token.")
+		logging.SetSpanError(span, err)
 		return false
 	default:
 		if checkPasswordHash(ctx, password, saved) {
@@ -340,11 +366,17 @@ func isUserVerifiedInRedis(ctx context.Context, username string, password string
 func setUserInfoToRedis(ctx context.Context, username string, password string) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-SetUserLog")
 	defer span.Finish()
+	logger := logging.GetSpanLogger(span, "Redis.SetUserLog")
 	saved, err := redis.Client.Get(ctx, "UserLog"+username).Result()
 	switch {
 	case err == redisLib.Nil:
 		redis.Client.Set(ctx, "UserLog"+username, password, 240*time.Hour)
 	case err != nil:
+		logger.WithFields(logrus.Fields{
+			"err":      err,
+			"username": username,
+		}).Warnf("Redis have a trouble when set user's cached login info.")
+		logging.SetSpanError(span, err)
 	default:
 		redis.Client.Del(ctx, "UserLog"+saved)
 		redis.Client.Set(ctx, "UserLog"+username, password, 240*time.Hour)
@@ -354,12 +386,14 @@ func setUserInfoToRedis(ctx context.Context, username string, password string) {
 func getAvatarByEmail(ctx context.Context, email string) string {
 	span, _ := opentracing.StartSpanFromContext(ctx, "Auth-GetAvatar")
 	defer span.Finish()
+
 	return fmt.Sprintf("https://cravatar.cn/avatar/%s?d=identicon", getEmailMD5(ctx, email))
 }
 
 func getEmailMD5(ctx context.Context, email string) (md5String string) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "Auth-EmailMD5")
 	defer span.Finish()
+
 	lowerEmail := strings2.ToLower(email)
 	hashed := md5.New()
 	hashed.Write([]byte(lowerEmail))
