@@ -246,7 +246,7 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 	// 在Redis中验证用户信息
 	if !isUserVerifiedInRedis(ctx, request.Username, request.Password) {
 		// 在数据库中查找用户
-		result := database.Client.Where("user_name = ?", request.Username).Find(&user)
+		result := database.Client.Where("user_name = ?", request.Username).WithContext(ctx).Find(&user)
 
 		logger.WithFields(logrus.Fields{
 			"err":      result.Error,

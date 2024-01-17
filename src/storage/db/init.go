@@ -4,26 +4,17 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-	"gorm.io/plugin/opentelemetry/logging/logrus"
 	"gorm.io/plugin/opentelemetry/tracing"
 	"tiktok/src/constant/config"
 	"tiktok/src/models"
-	"time"
+	"tiktok/src/utils/logging"
 )
 
 var Client *gorm.DB
 
 func init() {
 	var err error
-	gormLogrus := logger.New(
-		logrus.NewWriter(),
-		logger.Config{
-			SlowThreshold: time.Millisecond,
-			Colorful:      false,
-			LogLevel:      logger.Info,
-		},
-	)
+	gormLogrus := logging.GetGormLogger()
 	// data source name
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		config.EnvCfg.MySQLUser,

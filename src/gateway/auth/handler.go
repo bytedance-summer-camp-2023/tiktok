@@ -62,12 +62,13 @@ func RegisterHandle(c *gin.Context) {
 	log := logging.GetSpanLogger(span, "GateWay.Register")
 
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusOK, models.LoginRes{
+		c.JSON(http.StatusOK, models.RegisterRes{
 			StatusCode: strings.GateWayParamsErrorCode,
 			StatusMsg:  strings.GateWayParamsError,
 			UserId:     0,
 			Token:      "",
 		})
+		return
 	}
 
 	res, err := Client.Register(c.Request.Context(), &auth.RegisterRequest{
