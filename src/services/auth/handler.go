@@ -33,13 +33,19 @@ type AuthServiceImpl struct {
 func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.AuthenticateRequest) (resp *auth.AuthenticateResponse, err error) {
 	// 开始一个新的追踪span
 	span, ctx := opentracing.StartSpanFromContext(ctx, "AuthenticateService")
+
 	// 确保span在函数结束时关闭
 	defer span.Finish()
-
+	logger := logging.GetSpanLogger(span, "AuthService.Authenticate")
 	// 检查token是否存在
 	has, userId, err := hasToken(ctx, request.Token)
 	// 如果在检查过程中发生错误，返回内部错误的响应
 	if err != nil {
+		logger.WithFields(logrus.Fields{
+			"err":   err,
+			"token": request.Token,
+		}).Warnf("AuthService Authenticate Action failed to response when checking token")
+		logging.SetSpanError(span, err)
 		resp = &auth.AuthenticateResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -60,6 +66,11 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 	id, err := strconv.ParseUint(userId, 10, 32)
 	// 如果在转换过程中发生错误，返回内部错误的响应
 	if err != nil {
+		logger.WithFields(logrus.Fields{
+			"err":   err,
+			"token": request.Token,
+		}).Warnf("AuthService Authenticate Action failed to response when parsering uint")
+		logging.SetSpanError(span, err)
 		resp = &auth.AuthenticateResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -84,7 +95,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 	span, ctx := opentracing.StartSpanFromContext(ctx, "RegisterService")
 	// 确保span在函数结束时关闭
 	defer span.Finish()
-
+	logger := logging.GetSpanLogger(span, "AuthService.Register")
 	// 初始化响应
 	resp = &auth.RegisterResponse{}
 	var user models.User
@@ -103,6 +114,11 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 	var hashedPassword string
 	if hashedPassword, err = hashPassword(ctx, request.Password); err != nil {
 		// 如果在哈希处理过程中发生错误，返回内部错误的响应
+		logger.WithFields(logrus.Fields{
+			"err":      result.Error,
+			"username": request.Username,
+		}).Warnf("AuthService Register Action failed to response when hashing password")
+		logging.SetSpanError(span, err)
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -119,22 +135,24 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		defer wg.Done()
 		// 从hitokoto服务获取一句话作为用户签名
 		resp, err := http.Get("https://v1.hitokoto.cn/?c=b&encode=text")
+		span, _ := opentracing.StartSpanFromContext(ctx, "FetchSignature")
 		logger := logging.GetSpanLogger(span, "Auth.FetchSignature")
+
 		if err != nil {
-			// 如果在获取签名过程中发生错误，使用用户名作为签名
 			user.Signature = user.UserName
 			logger.WithFields(logrus.Fields{
 				"err": err,
 			}).Warnf("Can not reach hitokoto")
+			logging.SetSpanError(span, err)
 			return
 		}
 
-		// 如果hitokoto服务返回的状态码不是200，使用用户名作为签名
 		if resp.StatusCode != http.StatusOK {
 			user.Signature = user.UserName
 			logger.WithFields(logrus.Fields{
 				"status_code": resp.StatusCode,
 			}).Warnf("Hitokoto service may be error")
+			logging.SetSpanError(span, err)
 			return
 		}
 
@@ -146,6 +164,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			logger.WithFields(logrus.Fields{
 				"err": err,
 			}).Warnf("Can not decode the response body of hitokoto")
+			logging.SetSpanError(span, err)
 			return
 		}
 
@@ -173,6 +192,11 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 	result = database.Client.WithContext(ctx).Create(&user)
 	if result.Error != nil {
 		// 如果在创建用户过程中发生错误，返回内部错误的响应
+		logger.WithFields(logrus.Fields{
+			"err":      result.Error,
+			"username": request.Username,
+		}).Warnf("AuthService Register Action failed to response when creating user")
+		logging.SetSpanError(span, result.Error)
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -183,6 +207,11 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 	// 获取用户token
 	if resp.Token, err = getToken(ctx, user.ID); err != nil {
 		// 如果在获取token过程中发生错误，返回内部错误的响应
+		logger.WithFields(logrus.Fields{
+			"err":      result.Error,
+			"username": request.Username,
+		}).Warnf("AuthService Register Action failed to response when getting token")
+		logging.SetSpanError(span, err)
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
