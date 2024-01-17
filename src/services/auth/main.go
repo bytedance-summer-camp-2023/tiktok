@@ -16,6 +16,8 @@ import (
 )
 
 func main() {
+	// Configure Pyroscope
+	middleware.InitPyroscope("TikTok.AuthService")
 	tracer, closer, err := middleware.NewTracer(config.AuthRpcServerName)
 	if err != nil {
 		logging.Logger.WithFields(logrus.Fields{
