@@ -49,8 +49,8 @@ func TestLogin(t *testing.T) {
 	assert.Empty(t, err)
 	Client = auth.NewAuthServiceClient(conn)
 	res, err := Client.Login(context.Background(), &auth.LoginRequest{
-		Username: "epicmo",
-		Password: "epicmo",
+		Username: "zyxbend",
+		Password: "zyxbend",
 	})
 	assert.Empty(t, err)
 	assert.Equal(t, uint32(0), res.StatusCode)
