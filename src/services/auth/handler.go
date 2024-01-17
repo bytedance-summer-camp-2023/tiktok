@@ -78,13 +78,19 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 	return
 }
 
+// Register 方法用于注册新用户
 func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterRequest) (resp *auth.RegisterResponse, err error) {
+	// 开始一个新的追踪span
 	span, ctx := opentracing.StartSpanFromContext(ctx, "RegisterService")
+	// 确保span在函数结束时关闭
 	defer span.Finish()
 
+	// 初始化响应
 	resp = &auth.RegisterResponse{}
 	var user models.User
+	// 在数据库中查找是否已存在同名用户
 	result := database.Client.WithContext(ctx).Limit(1).Where("user_name = ?", request.Username).Find(&user)
+	// 如果找到了同名用户，返回用户已存在的响应
 	if result.RowsAffected != 0 {
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthUserExistedCode,
@@ -93,8 +99,10 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		return
 	}
 
+	// 对用户密码进行哈希处理
 	var hashedPassword string
 	if hashedPassword, err = hashPassword(ctx, request.Password); err != nil {
+		// 如果在哈希处理过程中发生错误，返回内部错误的响应
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -102,15 +110,18 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		return
 	}
 
+	// 使用WaitGroup来同步并发的goroutine
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
-	//Get Sign
+	// 在一个新的goroutine中获取用户签名
 	go func() {
 		defer wg.Done()
+		// 从hitokoto服务获取一句话作为用户签名
 		resp, err := http.Get("https://v1.hitokoto.cn/?c=b&encode=text")
 		logger := logging.GetSpanLogger(span, "Auth.FetchSignature")
 		if err != nil {
+			// 如果在获取签名过程中发生错误，使用用户名作为签名
 			user.Signature = user.UserName
 			logger.WithFields(logrus.Fields{
 				"err": err,
@@ -118,6 +129,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			return
 		}
 
+		// 如果hitokoto服务返回的状态码不是200，使用用户名作为签名
 		if resp.StatusCode != http.StatusOK {
 			user.Signature = user.UserName
 			logger.WithFields(logrus.Fields{
@@ -126,8 +138,10 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			return
 		}
 
+		// 读取hitokoto服务返回的响应体作为用户签名
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
+			// 如果在读取响应体过程中发生错误，使用用户名作为签名
 			user.Signature = user.UserName
 			logger.WithFields(logrus.Fields{
 				"err": err,
@@ -135,23 +149,30 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			return
 		}
 
+		// 设置用户签名
 		user.Signature = string(body)
 	}()
 
+	// 在一个新的goroutine中获取用户头像
 	go func() {
 		defer wg.Done()
+		// 如果用户名是一个邮箱地址，使用邮箱地址获取用户头像
 		if user.IsNameEmail() {
 			user.Avatar = getAvatarByEmail(ctx, user.UserName)
 		}
 	}()
 
+	// 等待所有goroutine完成
 	wg.Wait()
 
+	// 设置用户名和密码
 	user.UserName = request.Username
 	user.Password = hashedPassword
 
+	// 在数据库中创建新用户
 	result = database.Client.WithContext(ctx).Create(&user)
 	if result.Error != nil {
+		// 如果在创建用户过程中发生错误，返回内部错误的响应
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -159,7 +180,9 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		return
 	}
 
+	// 获取用户token
 	if resp.Token, err = getToken(ctx, user.ID); err != nil {
+		// 如果在获取token过程中发生错误，返回内部错误的响应
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -167,14 +190,18 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		return resp, nil
 	}
 
+	// 设置响应的用户ID，状态码和状态消息
 	resp.UserId = uint32(user.ID)
 	resp.StatusCode = strings.ServiceOKCode
 	resp.StatusMsg = strings.ServiceOK
 	return
 }
 
+// Login 方法用于验证用户的登录信息
 func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) (resp *auth.LoginResponse, err error) {
+	// 开始一个新的追踪span
 	span, ctx := opentracing.StartSpanFromContext(ctx, "LoginService")
+	// 确保span在函数结束时关闭
 	defer span.Finish()
 	childCtx := opentracing.ContextWithSpan(ctx, span)
 	logger := logging.GetSpanLogger(span, "AuthService.Login")
@@ -182,12 +209,16 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 		"username": request.Username,
 	}).Infof("User try to log in.")
 
+	// 初始化响应
 	resp = &auth.LoginResponse{}
 	user := models.User{
 		UserName: request.Username,
 	}
+	// 在Redis中验证用户信息
 	if !isUserVerifiedInRedis(ctx, request.Username, request.Password) {
+		// 在数据库中查找用户
 		result := database.Client.Where("user_name = ?", request.Username).Find(&user)
+		// 如果在查找过程中发生错误，返回内部错误的响应
 		if result.Error != nil {
 			resp = &auth.LoginResponse{
 				StatusCode: strings.AuthServiceInnerErrorCode,
@@ -196,6 +227,7 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 			return
 		}
 
+		// 如果没有找到用户，返回用户不存在的响应
 		if result.RowsAffected == 0 {
 			resp = &auth.LoginResponse{
 				StatusCode: strings.AuthUserNotExistedCode,
@@ -204,6 +236,7 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 			return
 		}
 
+		// 验证用户密码
 		if !checkPasswordHash(ctx, request.Password, user.Password) {
 			resp = &auth.LoginResponse{
 				StatusCode: strings.AuthUserLoginFailedCode,
@@ -212,6 +245,7 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 			return
 		}
 
+		// 对用户密码进行哈希处理
 		hashed, errs := hashPassword(ctx, request.Password)
 		if errs != nil {
 			resp = &auth.LoginResponse{
@@ -220,9 +254,11 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 			}
 			return
 		}
+		// 将用户信息存储到Redis
 		setUserInfoToRedis(ctx, user.UserName, hashed)
 	}
 
+	// 获取用户token
 	token, err := getToken(childCtx, user.ID)
 	if err != nil {
 		resp = &auth.LoginResponse{
@@ -232,6 +268,7 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 		return resp, nil
 	}
 
+	// 设置响应的用户ID，状态码，状态消息和token
 	resp = &auth.LoginResponse{
 		StatusCode: strings.ServiceOKCode,
 		StatusMsg:  strings.ServiceOK,
