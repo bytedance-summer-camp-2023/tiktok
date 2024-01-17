@@ -5,6 +5,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"tiktok/src/constant/config"
 	"tiktok/src/extra/profiling"
@@ -40,6 +41,10 @@ func main() {
 
 	// Configure Pyroscope
 	profiling.InitPyroscope("TikTok.GateWay")
+	// Configure Prometheus
+	p := ginprometheus.NewPrometheus("gin")
+	p.Use(g)
+
 	// Register Service
 	// Test Service
 	g.GET("/about", about.Handle)
