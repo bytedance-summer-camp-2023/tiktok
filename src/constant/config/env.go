@@ -10,23 +10,24 @@ import (
 var EnvCfg envConfig
 
 type envConfig struct {
-	ConsulAddr          string `env:"CONSUL_ADDR" envDefault:"localhost:8500"`
-	LoggerLevel         string `env:"LOGGER_LEVEL" envDefault:"INFO"`
-	TiedLogging         string `env:"TIED" envDefault:"NONE"`
-	MySQLHost           string `env:"MYSQL_HOST"`
-	MySQLPort           string `env:"MYSQL_PORT"`
-	MySQLUser           string `env:"MYSQL_USER"`
-	MySQLPassword       string `env:"MYSQL_PASSWORD"`
-	MySQLDataBase       string `env:"MYSQL_DATABASE"`
-	StorageType         string `env:"STORAGE_TYPE" envDefault:"fs"`
-	FileSystemStartPath string `env:"FS_PATH" envDefault:"/tmp"`
-	FileSystemBaseUrl   string `env:"FS_BASEURL" envDefault:"http://localhost/"`
-	RedisAddr           string `env:"REDIS_ADDR"`
-	RedisPassword       string `env:"REDIS_PASSWORD" envDefault:""`
-	RedisDB             int    `env:"REDIS_DB" envDefault:"0"`
-	TracingEndPoint     string `env:"TRACING_ENDPOINT"`
-	PyroscopeState      string `env:"PYROSCOPE_STATE" envDefault:"false"`
-	PyroscopeAddr       string `env:"PYROSCOPE_ADDR"`
+	ConsulAddr           string `env:"CONSUL_ADDR" envDefault:"localhost:8500"`
+	LoggerLevel          string `env:"LOGGER_LEVEL" envDefault:"INFO"`
+	LoggerWithTraceState string `env:"LOGGER_OUT_TRACING" envDefault:"disable"`
+	TiedLogging          string `env:"TIED" envDefault:"NONE"`
+	MySQLHost            string `env:"MYSQL_HOST"`
+	MySQLPort            string `env:"MYSQL_PORT"`
+	MySQLUser            string `env:"MYSQL_USER"`
+	MySQLPassword        string `env:"MYSQL_PASSWORD"`
+	MySQLDataBase        string `env:"MYSQL_DATABASE"`
+	StorageType          string `env:"STORAGE_TYPE" envDefault:"fs"`
+	FileSystemStartPath  string `env:"FS_PATH" envDefault:"/tmp"`
+	FileSystemBaseUrl    string `env:"FS_BASEURL" envDefault:"http://localhost/"`
+	RedisAddr            string `env:"REDIS_ADDR"`
+	RedisPassword        string `env:"REDIS_PASSWORD" envDefault:""`
+	RedisDB              int    `env:"REDIS_DB" envDefault:"0"`
+	TracingEndPoint      string `env:"TRACING_ENDPOINT"`
+	PyroscopeState       string `env:"PYROSCOPE_STATE" envDefault:"false"`
+	PyroscopeAddr        string `env:"PYROSCOPE_ADDR"`
 }
 
 func init() {

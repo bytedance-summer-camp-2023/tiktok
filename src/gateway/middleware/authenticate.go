@@ -1,18 +1,19 @@
-package authmw
+package middleware
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel/attribute"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"tiktok/src/constant/config"
 	"tiktok/src/constant/strings"
+	"tiktok/src/extra/tracing"
 	"tiktok/src/rpc/auth"
-	"tiktok/src/utils/interceptor"
 	"tiktok/src/utils/logging"
-	"tiktok/src/utils/trace"
 )
 
 var client auth.AuthServiceClient
@@ -25,13 +26,14 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		}
 
 		token := c.Query("token")
-		span := trace.GetChildSpanFromGinContext(c, "GateWay-Auth")
-		defer span.Finish()
-		log := logging.GetSpanLogger(span, "GateWay.Auth")
+		ctx, span := tracing.Tracer.Start(c.Request.Context(), "AuthMiddleWare")
+		c.Request.WithContext(ctx)
+		span.SetAttributes(attribute.String("token", token))
+		logger := logging.LogService("GateWay.AuthMiddleWare").WithContext(ctx)
 		authenticate, err := client.Authenticate(c.Request.Context(), &auth.AuthenticateRequest{Token: token})
 
 		if err != nil {
-			log.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"err": err,
 			}).Errorf("Gatewat Auth meet trouble")
 
@@ -60,7 +62,7 @@ func init() {
 		fmt.Sprintf("consul://%s/%s?wait=15s", config.EnvCfg.ConsulAddr, config.AuthRpcServerName),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
-		grpc.WithUnaryInterceptor(interceptor.OpenTracingClientInterceptor()),
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
 	)
 
 	if err != nil {

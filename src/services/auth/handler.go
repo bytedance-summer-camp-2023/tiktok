@@ -6,10 +6,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/log"
 	redisLib "github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"net/http"
@@ -17,6 +16,7 @@ import (
 	strings2 "strings"
 	"sync"
 	"tiktok/src/constant/strings"
+	"tiktok/src/extra/tracing"
 	"tiktok/src/models"
 	"tiktok/src/rpc/auth"
 	"tiktok/src/storage/db"
@@ -32,11 +32,11 @@ type AuthServiceImpl struct {
 // Authenticate 方法用于验证用户的token是否有效
 func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.AuthenticateRequest) (resp *auth.AuthenticateResponse, err error) {
 	// 开始一个新的追踪span
-	span, ctx := opentracing.StartSpanFromContext(ctx, "AuthenticateService")
+	ctx, span := tracing.Tracer.Start(ctx, "AuthenticateService")
 
 	// 确保span在函数结束时关闭
-	defer span.Finish()
-	logger := logging.GetSpanLogger(span, "AuthService.Authenticate")
+	defer span.End()
+	logger := logging.LogService("AuthService.Authenticate").WithContext(ctx)
 	// 检查token是否存在
 	has, userId, err := hasToken(ctx, request.Token)
 	// 如果在检查过程中发生错误，返回内部错误的响应
@@ -45,7 +45,7 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 			"err":   err,
 			"token": request.Token,
 		}).Warnf("AuthService Authenticate Action failed to response when checking token")
-		logging.SetSpanError(span, err)
+		span.RecordError(err)
 		resp = &auth.AuthenticateResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -70,7 +70,7 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 			"err":   err,
 			"token": request.Token,
 		}).Warnf("AuthService Authenticate Action failed to response when parsering uint")
-		logging.SetSpanError(span, err)
+		span.RecordError(err)
 		resp = &auth.AuthenticateResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -92,10 +92,11 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 // Register 方法用于注册新用户
 func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterRequest) (resp *auth.RegisterResponse, err error) {
 	// 开始一个新的追踪span
-	span, ctx := opentracing.StartSpanFromContext(ctx, "RegisterService")
+	ctx, span := tracing.Tracer.Start(ctx, "RegisterService")
 	// 确保span在函数结束时关闭
-	defer span.Finish()
-	logger := logging.GetSpanLogger(span, "AuthService.Register")
+	defer span.End()
+	logger := logging.LogService("AuthService.Register").WithContext(ctx)
+
 	// 初始化响应
 	resp = &auth.RegisterResponse{}
 	var user models.User
@@ -118,7 +119,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			"err":      result.Error,
 			"username": request.Username,
 		}).Warnf("AuthService Register Action failed to response when hashing password")
-		logging.SetSpanError(span, err)
+		span.RecordError(err)
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -135,15 +136,16 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		defer wg.Done()
 		// 从hitokoto服务获取一句话作为用户签名
 		resp, err := http.Get("https://v1.hitokoto.cn/?c=b&encode=text")
-		span, _ := opentracing.StartSpanFromContext(ctx, "FetchSignature")
-		logger := logging.GetSpanLogger(span, "Auth.FetchSignature")
+		_, span := tracing.Tracer.Start(ctx, "FetchSignature")
+		defer span.End()
+		logger := logging.LogService("AuthService.FetchSignature").WithContext(ctx)
 
 		if err != nil {
 			user.Signature = user.UserName
 			logger.WithFields(logrus.Fields{
 				"err": err,
 			}).Warnf("Can not reach hitokoto")
-			logging.SetSpanError(span, err)
+			span.RecordError(err)
 			return
 		}
 
@@ -152,7 +154,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			logger.WithFields(logrus.Fields{
 				"status_code": resp.StatusCode,
 			}).Warnf("Hitokoto service may be error")
-			logging.SetSpanError(span, err)
+			span.RecordError(err)
 			return
 		}
 
@@ -164,7 +166,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			logger.WithFields(logrus.Fields{
 				"err": err,
 			}).Warnf("Can not decode the response body of hitokoto")
-			logging.SetSpanError(span, err)
+			span.RecordError(err)
 			return
 		}
 
@@ -196,7 +198,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			"err":      result.Error,
 			"username": request.Username,
 		}).Warnf("AuthService Register Action failed to response when creating user")
-		logging.SetSpanError(span, result.Error)
+		span.RecordError(err)
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -211,7 +213,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			"err":      result.Error,
 			"username": request.Username,
 		}).Warnf("AuthService Register Action failed to response when getting token")
-		logging.SetSpanError(span, err)
+		span.RecordError(err)
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -229,11 +231,10 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 // Login 方法用于验证用户的登录信息
 func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) (resp *auth.LoginResponse, err error) {
 	// 开始一个新的追踪span
-	span, ctx := opentracing.StartSpanFromContext(ctx, "LoginService")
+	ctx, span := tracing.Tracer.Start(ctx, "LoginService")
 	// 确保span在函数结束时关闭
-	defer span.Finish()
-	childCtx := opentracing.ContextWithSpan(ctx, span)
-	logger := logging.GetSpanLogger(span, "AuthService.Login")
+	defer span.End()
+	logger := logging.LogService("AuthService.Login").WithContext(ctx)
 	logger.WithFields(logrus.Fields{
 		"username": request.Username,
 	}).Infof("User try to log in.")
@@ -252,7 +253,7 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 			"err":      result.Error,
 			"username": request.Username,
 		}).Warnf("AuthService Login Action failed to response with inner err.")
-		logging.SetSpanError(span, result.Error)
+		span.RecordError(result.Error)
 		// 如果在查找过程中发生错误，返回内部错误的响应
 		if result.Error != nil {
 			resp = &auth.LoginResponse{
@@ -287,7 +288,7 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 				"err":      errs,
 				"username": request.Username,
 			}).Warnf("AuthService Login Action failed to response with inner err.")
-			logging.SetSpanError(span, errs)
+			span.RecordError(errs)
 			resp = &auth.LoginResponse{
 				StatusCode: strings.AuthServiceInnerErrorCode,
 				StatusMsg:  strings.AuthServiceInnerError,
@@ -299,13 +300,13 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 	}
 
 	// 获取用户token
-	token, err := getToken(childCtx, user.ID)
+	token, err := getToken(ctx, user.ID)
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			"err":      err,
 			"username": request.Username,
 		}).Warnf("AuthService Login Action failed to response with inner err.")
-		logging.SetSpanError(span, err)
+		span.RecordError(err)
 		resp = &auth.LoginResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -324,24 +325,25 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 }
 
 func hashPassword(ctx context.Context, password string) (string, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Auth-PasswordHash")
-	defer span.Finish()
+	ctx, span := tracing.Tracer.Start(ctx, "Auth-PasswordHash")
+	defer span.End()
+
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	return string(bytes), err
 }
 
 func checkPasswordHash(ctx context.Context, password, hash string) bool {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Auth-PasswordHashChecked")
-	defer span.Finish()
+	ctx, span := tracing.Tracer.Start(ctx, "Auth-PasswordHashChecked")
+	defer span.End()
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
 func getToken(ctx context.Context, userId uint) (token string, err error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-GetToken")
-	defer span.Finish()
+	ctx, span := tracing.Tracer.Start(ctx, "Redis-GetToken")
+	defer span.End()
 	token, err = redis.Client.Get(ctx, "U2T"+strconv.Itoa(int(userId))).Result()
-	span.LogFields(log.String("token", token))
+	span.SetAttributes(attribute.String("token", token))
 	switch {
 	case err == redisLib.Nil: // User do not log in
 		token = uuid.New().String()
@@ -354,8 +356,8 @@ func getToken(ctx context.Context, userId uint) (token string, err error) {
 }
 
 func hasToken(ctx context.Context, token string) (bool, string, error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-HasToken")
-	defer span.Finish()
+	ctx, span := tracing.Tracer.Start(ctx, "Redis-HasToken")
+	defer span.End()
 
 	userId, err := redis.Client.Get(ctx, "T2U"+token).Result()
 	switch {
@@ -369,9 +371,9 @@ func hasToken(ctx context.Context, token string) (bool, string, error) {
 }
 
 func isUserVerifiedInRedis(ctx context.Context, username string, password string) bool {
-	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-VerifiedLogUserInfo")
-	defer span.Finish()
-	logger := logging.GetSpanLogger(span, "Redis.VerifiedLogUserInfo")
+	ctx, span := tracing.Tracer.Start(ctx, "Redis-VerifiedLogUserInfo")
+	defer span.End()
+	logger := logging.LogService("Redis.VerifiedLogUserInfo").WithContext(ctx)
 
 	saved, err := redis.Client.Get(ctx, "UserLog"+username).Result()
 	switch {
@@ -383,6 +385,7 @@ func isUserVerifiedInRedis(ctx context.Context, username string, password string
 			"username": username,
 		}).Warnf("Redis have a trouble when verifying user's token.")
 		logging.SetSpanError(span, err)
+
 		return false
 	default:
 		if checkPasswordHash(ctx, password, saved) {
@@ -393,9 +396,10 @@ func isUserVerifiedInRedis(ctx context.Context, username string, password string
 }
 
 func setUserInfoToRedis(ctx context.Context, username string, password string) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-SetUserLog")
-	defer span.Finish()
-	logger := logging.GetSpanLogger(span, "Redis.SetUserLog")
+	ctx, span := tracing.Tracer.Start(ctx, "Redis-SetUserLog")
+	defer span.End()
+	logger := logging.LogService("Redis.SetUserLog").WithContext(ctx)
+
 	saved, err := redis.Client.Get(ctx, "UserLog"+username).Result()
 	switch {
 	case err == redisLib.Nil:
@@ -413,15 +417,14 @@ func setUserInfoToRedis(ctx context.Context, username string, password string) {
 }
 
 func getAvatarByEmail(ctx context.Context, email string) string {
-	span, _ := opentracing.StartSpanFromContext(ctx, "Auth-GetAvatar")
-	defer span.Finish()
-
+	ctx, span := tracing.Tracer.Start(ctx, "Auth-GetAvatar")
+	defer span.End()
 	return fmt.Sprintf("https://cravatar.cn/avatar/%s?d=identicon", getEmailMD5(ctx, email))
 }
 
 func getEmailMD5(ctx context.Context, email string) (md5String string) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "Auth-EmailMD5")
-	defer span.Finish()
+	ctx, span := tracing.Tracer.Start(ctx, "Auth-EmailMD5")
+	defer span.End()
 
 	lowerEmail := strings2.ToLower(email)
 	hashed := md5.New()

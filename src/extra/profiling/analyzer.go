@@ -6,8 +6,8 @@ import (
 	"gorm.io/plugin/opentelemetry/logging/logrus"
 	"os"
 	"runtime"
-	"tiktok/constant/config"
-	"tiktok/utils/logging"
+	"tiktok/src/constant/config"
+	"tiktok/src/utils/logging"
 )
 
 func InitPyroscope(appName string) {

@@ -1,24 +1,45 @@
 package main
 
 import (
+	"context"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"tiktok/src/constant/config"
+	"tiktok/src/extra/profiling"
+	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/about"
 	"tiktok/src/gateway/auth"
-	"tiktok/src/gateway/authmw"
 	"tiktok/src/gateway/middleware"
+	"tiktok/src/utils/logging"
 )
 
 func main() {
+	// Set Trace Provider
+	tp, err := tracing.SetTraceProvider(config.WebServiceName)
+
+	if err != nil {
+		logging.Logger.WithFields(logrus.Fields{
+			"err": err,
+		}).Panicf("Error to set the trace")
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			logging.Logger.WithFields(logrus.Fields{
+				"err": err,
+			}).Errorf("Error to set the trace")
+		}
+	}()
 	g := gin.Default()
 	// Configure Gzip
 	g.Use(gzip.Gzip(gzip.DefaultCompression))
 	// Configure Tracing
-	g.Use(middleware.Jaeger())
-	g.Use(authmw.TokenAuthMiddleware())
+	g.Use(otelgin.Middleware(config.WebServiceName))
+	g.Use(middleware.TokenAuthMiddleware())
+
 	// Configure Pyroscope
-	middleware.InitPyroscope("Tiktok.GateWay")
+	profiling.InitPyroscope("TikTok.GateWay")
 	// Register Service
 	// Test Service
 	g.GET("/about", about.Handle)
@@ -32,9 +53,7 @@ func main() {
 	}
 
 	// Run Server
-	err := g.Run(config.WebServiceAddr)
-
-	if err != nil {
+	if err := g.Run(config.WebServiceAddr); err != nil {
 		panic("Can not run GuGoTik Gateway, binding port: " + config.WebServiceAddr)
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"tiktok/src/constant/config"
 	"tiktok/src/models"
 	"tiktok/src/utils/logging"
+	"time"
 )
 
 var Client *gorm.DB
@@ -30,6 +31,15 @@ func init() {
 	); err != nil {
 		panic(err)
 	}
+
+	sqlDB, err := Client.DB()
+	if err != nil {
+		panic(err)
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	if err := Client.AutoMigrate(&models.User{}); err != nil {
 		panic(err)

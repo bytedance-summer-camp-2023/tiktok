@@ -5,25 +5,25 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/mbobakov/grpc-consul-resolver"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"tiktok/src/constant/config"
 	"tiktok/src/constant/strings"
+	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/models"
 	"tiktok/src/rpc/auth"
-	"tiktok/src/utils/interceptor"
 	"tiktok/src/utils/logging"
-	"tiktok/src/utils/trace"
 )
 
 var Client auth.AuthServiceClient
 
 func LoginHandle(c *gin.Context) {
 	var req models.LoginReq
-	span := trace.GetChildSpanFromGinContext(c, "GateWay-Login")
-	defer span.Finish()
-	log := logging.GetSpanLogger(span, "GateWay.Login")
+	_, span := tracing.Tracer.Start(c.Request.Context(), "LoginHandler")
+	defer span.End()
+	logger := logging.LogService("GateWay.Login").WithContext(c.Request.Context())
 
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusOK, models.LoginRes{
@@ -39,14 +39,14 @@ func LoginHandle(c *gin.Context) {
 		Password: req.Password,
 	})
 	if err != nil {
-		log.WithFields(logrus.Fields{
+		logger.WithFields(logrus.Fields{
 			"Username": req.UserName,
 		}).Warnf("Error when trying to connect with AuthService")
 		c.JSON(http.StatusOK, res)
 		return
 	}
 
-	log.WithFields(logrus.Fields{
+	logger.WithFields(logrus.Fields{
 		"Username": req.UserName,
 		"Token":    res.Token,
 		"UserId":   res.UserId,
@@ -57,9 +57,9 @@ func LoginHandle(c *gin.Context) {
 
 func RegisterHandle(c *gin.Context) {
 	var req models.RegisterReq
-	span := trace.GetChildSpanFromGinContext(c, "GateWay-Register")
-	defer span.Finish()
-	log := logging.GetSpanLogger(span, "GateWay.Register")
+	_, span := tracing.Tracer.Start(c.Request.Context(), "LoginHandler")
+	defer span.End()
+	logger := logging.LogService("GateWay.Register").WithContext(c.Request.Context())
 
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusOK, models.RegisterRes{
@@ -77,14 +77,14 @@ func RegisterHandle(c *gin.Context) {
 	})
 
 	if err != nil {
-		log.WithFields(logrus.Fields{
+		logger.WithFields(logrus.Fields{
 			"Username": req.UserName,
 		}).Warnf("Error when trying to connect with AuthService")
 		c.JSON(http.StatusOK, res)
 		return
 	}
 
-	log.WithFields(logrus.Fields{
+	logger.WithFields(logrus.Fields{
 		"Username": req.UserName,
 		"Token":    res.Token,
 		"UserId":   res.UserId,
@@ -98,7 +98,7 @@ func init() {
 		fmt.Sprintf("consul://%s/%s?wait=15s", config.EnvCfg.ConsulAddr, config.AuthRpcServerName),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
-		grpc.WithUnaryInterceptor(interceptor.OpenTracingClientInterceptor()),
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
 	)
 
 	if err != nil {

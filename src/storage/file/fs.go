@@ -2,12 +2,12 @@ package file
 
 import (
 	"context"
-	"github.com/opentracing/opentracing-go"
 	"io"
 	"net/url"
 	"os"
 	"path"
 	"tiktok/src/constant/config"
+	"tiktok/src/extra/tracing"
 	"tiktok/src/utils/logging"
 
 	"github.com/sirupsen/logrus"
@@ -17,9 +17,9 @@ type FSStorage struct {
 }
 
 func (f FSStorage) Upload(ctx context.Context, fileName string, content io.Reader) (output *PutObjectOutput, err error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "FSStorage-Upload")
-	defer span.Finish()
-	logger := logging.GetSpanLogger(span, "FSStorage.Upload")
+	ctx, span := tracing.Tracer.Start(ctx, "FSStorage-Upload")
+	defer span.End()
+	logger := logging.LogService("FSStorage.Upload").WithContext(ctx)
 	logger = logger.WithFields(logrus.Fields{
 		"file_name": fileName,
 	})
@@ -55,7 +55,7 @@ func (f FSStorage) Upload(ctx context.Context, fileName string, content io.Reade
 }
 
 func (f FSStorage) GetLink(ctx context.Context, fileName string) (string, error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "FSStorage-Upload")
-	defer span.Finish()
+	ctx, span := tracing.Tracer.Start(ctx, "FSStorage-GetLink")
+	defer span.End()
 	return url.JoinPath(config.EnvCfg.FileSystemBaseUrl, fileName)
 }

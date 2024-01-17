@@ -1,40 +1,42 @@
 package main
 
 import (
+	"context"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
-	"io"
 	"net"
 	"tiktok/src/constant/config"
-	"tiktok/src/gateway/middleware"
+	"tiktok/src/extra/profiling"
+	"tiktok/src/extra/tracing"
 	"tiktok/src/rpc/auth"
 	"tiktok/src/rpc/health"
 	healthImpl "tiktok/src/services/health"
 	"tiktok/src/utils/consul"
-	"tiktok/src/utils/interceptor"
 	"tiktok/src/utils/logging"
 )
 
 func main() {
-	// Configure Pyroscope
-	middleware.InitPyroscope("TikTok.AuthService")
-	tracer, closer, err := middleware.NewTracer(config.AuthRpcServerName)
+	tp, err := tracing.SetTraceProvider(config.AuthRpcServerName)
+
 	if err != nil {
 		logging.Logger.WithFields(logrus.Fields{
 			"err": err,
-		}).Errorf("Can not init Jaeger")
-		return
+		}).Panicf("Error to set the trace")
 	}
-	defer func(closer io.Closer) {
-		err := closer.Close()
-		if err != nil {
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
 			logging.Logger.WithFields(logrus.Fields{
 				"err": err,
-			}).Errorf("Error when close closer")
+			}).Errorf("Error to set the trace")
 		}
-	}(closer)
+	}()
+
+	// Configure Pyroscope
+	profiling.InitPyroscope("TikTok.AuthService")
+
 	s := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptor.OpentracingServerInterceptor(tracer)),
+		grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
 	)
 	log := logging.LogService(config.AuthRpcServerName)
 	lis, err := net.Listen("tcp", config.AuthRpcServerPort)

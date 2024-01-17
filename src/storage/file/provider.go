@@ -2,7 +2,6 @@ package file
 
 import (
 	"context"
-	"github.com/opentracing/opentracing-go"
 	"io"
 	"tiktok/src/constant/config"
 )
@@ -24,17 +23,9 @@ func init() {
 }
 
 func Upload(ctx context.Context, fileName string, content io.Reader) (*PutObjectOutput, error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "File-Upload")
-	defer span.Finish()
-	span.SetTag("fileName", fileName)
 	return Client.Upload(ctx, fileName, content)
 }
 
 func GetLink(ctx context.Context, fileName string) (link string, err error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "File-GetLink")
-	defer span.Finish()
-	span.SetTag("fileName", fileName)
-	link, err = Client.GetLink(ctx, fileName)
-	span.SetTag("fileLink", link)
-	return
+	return Client.GetLink(ctx, fileName)
 }

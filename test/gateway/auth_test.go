@@ -10,6 +10,7 @@ import (
 	"tiktok/src/gateway/models"
 )
 
+// This Test can only run once.
 func TestDisplayRegister(t *testing.T) {
 
 	url := "http://127.0.0.1:37000/douyin/user/register?username=zyxbend&password=zyxbend"
@@ -58,6 +59,7 @@ func TestRegister(t *testing.T) {
 	assert.Equal(t, 0, user.StatusCode)
 }
 
+// This test must run after `TestDisplayRegister`
 func TestLogin(t *testing.T) {
 
 	url := "http://127.0.0.1:37000/douyin/user/login?username=zyxbend&password=zyxbend"
