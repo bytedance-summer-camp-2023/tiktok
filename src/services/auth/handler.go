@@ -13,7 +13,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"net/http"
-	"regexp"
 	"strconv"
 	strings2 "strings"
 	"sync"
@@ -30,11 +29,16 @@ type AuthServiceImpl struct {
 	auth.AuthServiceServer
 }
 
+// Authenticate 方法用于验证用户的token是否有效
 func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.AuthenticateRequest) (resp *auth.AuthenticateResponse, err error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "AuthenticateService")
+	// 开始一个新的追踪span
+	span, ctx := opentracing.StartSpanFromContext(ctx, "AuthenticateService")
+	// 确保span在函数结束时关闭
 	defer span.Finish()
 
+	// 检查token是否存在
 	has, userId, err := hasToken(ctx, request.Token)
+	// 如果在检查过程中发生错误，返回内部错误的响应
 	if err != nil {
 		resp = &auth.AuthenticateResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
@@ -43,6 +47,7 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 		return
 	}
 
+	// 如果token不存在，返回用户不存在的响应
 	if !has {
 		resp = &auth.AuthenticateResponse{
 			StatusCode: strings.AuthUserNotExistedCode,
@@ -51,7 +56,9 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 		return
 	}
 
+	// 尝试将用户ID从字符串转换为无符号32位整数
 	id, err := strconv.ParseUint(userId, 10, 32)
+	// 如果在转换过程中发生错误，返回内部错误的响应
 	if err != nil {
 		resp = &auth.AuthenticateResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
@@ -60,17 +67,19 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 		return
 	}
 
+	// 创建一个新的响应，设置状态码为OK的状态码，状态消息为OK的状态消息，用户ID为转换后的用户ID
 	resp = &auth.AuthenticateResponse{
 		StatusCode: strings.ServiceOKCode,
 		StatusMsg:  strings.ServiceOK,
 		UserId:     uint32(id),
 	}
 
+	// 返回响应
 	return
 }
 
 func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterRequest) (resp *auth.RegisterResponse, err error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "RegisterService")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "RegisterService")
 	defer span.Finish()
 
 	resp = &auth.RegisterResponse{}
@@ -85,7 +94,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 	}
 
 	var hashedPassword string
-	if hashedPassword, err = hashPassword(request.Password); err != nil {
+	if hashedPassword, err = hashPassword(ctx, request.Password); err != nil {
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -131,10 +140,8 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 
 	go func() {
 		defer wg.Done()
-		pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`
-		reg := regexp.MustCompile(pattern)
-		if reg.MatchString(user.UserName) {
-			user.Avatar = getAvatarByEmail(user.UserName)
+		if user.IsNameEmail() {
+			user.Avatar = getAvatarByEmail(ctx, user.UserName)
 		}
 	}()
 
@@ -167,7 +174,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 }
 
 func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) (resp *auth.LoginResponse, err error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "LoginService")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "LoginService")
 	defer span.Finish()
 	childCtx := opentracing.ContextWithSpan(ctx, span)
 	logger := logging.GetSpanLogger(span, "AuthService.Login")
@@ -179,29 +186,41 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 	user := models.User{
 		UserName: request.Username,
 	}
-	result := database.Client.Where("user_name = ?", request.Username).Find(&user)
-	if result.Error != nil {
-		resp = &auth.LoginResponse{
-			StatusCode: strings.AuthServiceInnerErrorCode,
-			StatusMsg:  strings.AuthServiceInnerError,
+	if !isUserVerifiedInRedis(ctx, request.Username, request.Password) {
+		result := database.Client.Where("user_name = ?", request.Username).Find(&user)
+		if result.Error != nil {
+			resp = &auth.LoginResponse{
+				StatusCode: strings.AuthServiceInnerErrorCode,
+				StatusMsg:  strings.AuthServiceInnerError,
+			}
+			return
 		}
-		return
-	}
 
-	if result.RowsAffected == 0 {
-		resp = &auth.LoginResponse{
-			StatusCode: strings.AuthUserNotExistedCode,
-			StatusMsg:  strings.AuthUserNotExisted,
+		if result.RowsAffected == 0 {
+			resp = &auth.LoginResponse{
+				StatusCode: strings.AuthUserNotExistedCode,
+				StatusMsg:  strings.AuthUserNotExisted,
+			}
+			return
 		}
-		return
-	}
 
-	if !checkPasswordHash(request.Password, user.Password) {
-		resp = &auth.LoginResponse{
-			StatusCode: strings.AuthUserLoginFailedCode,
-			StatusMsg:  strings.AuthUserLoginFailed,
+		if !checkPasswordHash(ctx, request.Password, user.Password) {
+			resp = &auth.LoginResponse{
+				StatusCode: strings.AuthUserLoginFailedCode,
+				StatusMsg:  strings.AuthUserLoginFailed,
+			}
+			return
 		}
-		return
+
+		hashed, errs := hashPassword(ctx, request.Password)
+		if errs != nil {
+			resp = &auth.LoginResponse{
+				StatusCode: strings.AuthServiceInnerErrorCode,
+				StatusMsg:  strings.AuthServiceInnerError,
+			}
+			return
+		}
+		setUserInfoToRedis(ctx, user.UserName, hashed)
 	}
 
 	token, err := getToken(childCtx, user.ID)
@@ -222,12 +241,16 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 	return
 }
 
-func hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+func hashPassword(ctx context.Context, password string) (string, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Auth-PasswordHash")
+	defer span.Finish()
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	return string(bytes), err
 }
 
-func checkPasswordHash(password, hash string) bool {
+func checkPasswordHash(ctx context.Context, password, hash string) bool {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Auth-PasswordHashChecked")
+	defer span.Finish()
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
@@ -260,11 +283,46 @@ func hasToken(ctx context.Context, token string) (bool, string, error) {
 	}
 }
 
-func getAvatarByEmail(email string) string {
-	return fmt.Sprintf("https://cravatar.cn/avatar/%s?d=identicon", getEmailMD5(email))
+func isUserVerifiedInRedis(ctx context.Context, username string, password string) bool {
+	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-VerifiedLogUserInfo")
+	defer span.Finish()
+	saved, err := redis.Client.Get(ctx, "UserLog"+username).Result()
+	switch {
+	case err == redisLib.Nil: // User do not log in
+		return false
+	case err != nil:
+		return false
+	default:
+		if checkPasswordHash(ctx, password, saved) {
+			return true
+		}
+		return false
+	}
 }
 
-func getEmailMD5(email string) (md5String string) {
+func setUserInfoToRedis(ctx context.Context, username string, password string) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "Redis-SetUserLog")
+	defer span.Finish()
+	saved, err := redis.Client.Get(ctx, "UserLog"+username).Result()
+	switch {
+	case err == redisLib.Nil:
+		redis.Client.Set(ctx, "UserLog"+username, password, 240*time.Hour)
+	case err != nil:
+	default:
+		redis.Client.Del(ctx, "UserLog"+saved)
+		redis.Client.Set(ctx, "UserLog"+username, password, 240*time.Hour)
+	}
+}
+
+func getAvatarByEmail(ctx context.Context, email string) string {
+	span, _ := opentracing.StartSpanFromContext(ctx, "Auth-GetAvatar")
+	defer span.Finish()
+	return fmt.Sprintf("https://cravatar.cn/avatar/%s?d=identicon", getEmailMD5(ctx, email))
+}
+
+func getEmailMD5(ctx context.Context, email string) (md5String string) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "Auth-EmailMD5")
+	defer span.Finish()
 	lowerEmail := strings2.ToLower(email)
 	hashed := md5.New()
 	hashed.Write([]byte(lowerEmail))
