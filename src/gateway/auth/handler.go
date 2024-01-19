@@ -104,7 +104,7 @@ func init() {
 	if err != nil {
 		logging.Logger.WithFields(logrus.Fields{
 			"err": err,
-		}).Errorf("Build AuthService Cient meet trouble")
+		}).Errorf("Build AuthService Client meet trouble")
 	}
 	Client = auth.NewAuthServiceClient(conn)
 }
