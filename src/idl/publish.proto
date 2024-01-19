@@ -3,6 +3,12 @@ import "feed.proto";
 package rpc.publish;
 option go_package = "rpc/publish";
 
+message CreateVideoRequest {
+  uint32 actor_id = 1; // 用户id
+  bytes data = 2; // 视频数据
+  string title = 3; // 视频标题
+}
+
 message CreateVideoResponse {
   int32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
@@ -26,7 +32,7 @@ message CountVideoRequest{
 message CountVideoResponse{
   int32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
-  uint64 count = 3; // 视频数量
+  uint32 count = 3; // 视频数量
 }
 
 service PublishService {
