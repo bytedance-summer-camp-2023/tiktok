@@ -7,6 +7,7 @@ import (
 	"tiktok/src/extra/tracing"
 	"tiktok/src/models"
 	"tiktok/src/rpc/user"
+	"tiktok/src/storage/cached"
 	"tiktok/src/utils/logging"
 )
 
@@ -21,7 +22,8 @@ func (a UserServiceImpl) GetUserInfo(ctx context.Context, request *user.UserRequ
 
 	var userModel models.User
 	userModel.ID = request.UserId
-	err = userModel.FillFromRedis(ctx)
+	err = nil
+	cached.ScanGet(ctx, "UserInfo", &userModel)
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			"err":     err,

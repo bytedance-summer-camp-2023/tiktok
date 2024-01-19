@@ -10,6 +10,7 @@ require (
 	github.com/hashicorp/consul/api v1.20.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mbobakov/grpc-consul-resolver v1.5.2
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pyroscope-io/client v0.7.2
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
 	github.com/redis/go-redis/v9 v9.1.0
