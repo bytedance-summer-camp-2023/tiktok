@@ -9,15 +9,15 @@ import (
 	"tiktok/src/constant/config"
 	"tiktok/src/extra/profiling"
 	"tiktok/src/extra/tracing"
+	"tiktok/src/rpc/comment"
 	"tiktok/src/rpc/health"
-	"tiktok/src/rpc/user"
 	healthImpl "tiktok/src/services/health"
 	"tiktok/src/utils/consul"
 	"tiktok/src/utils/logging"
 )
 
 func main() {
-	tp, err := tracing.SetTraceProvider(config.UserRpcServerName)
+	tp, err := tracing.SetTraceProvider(config.CommentRpcServerName)
 
 	if err != nil {
 		logging.Logger.WithFields(logrus.Fields{
@@ -33,28 +33,28 @@ func main() {
 	}()
 
 	// Configure Pyroscope
-	profiling.InitPyroscope("TikTok.UserService")
+	profiling.InitPyroscope("TikTok.CommentService")
 
 	s := grpc.NewServer(
 		grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
 	)
 
-	log := logging.LogService(config.UserRpcServerName)
-	lis, err := net.Listen("tcp", config.UserRpcServerPort)
+	log := logging.LogService(config.CommentRpcServerName)
+	lis, err := net.Listen("tcp", config.CommentRpcServerPort)
 
 	if err != nil {
-		log.Panicf("Rpc %s listen happens error: %v", config.UserRpcServerName, err)
+		log.Panicf("Rpc %s listen happens error: %v", config.CommentRpcServerName, err)
 	}
 
-	var srv UserServiceImpl
+	var srv CommentServiceImpl
 	var probe healthImpl.ProbeImpl
-	user.RegisterUserServiceServer(s, srv)
+	comment.RegisterCommentServiceServer(s, srv)
 	health.RegisterHealthServer(s, &probe)
-	if err := consul.RegisterConsul(config.UserRpcServerName, config.UserRpcServerPort); err != nil {
-		log.Panicf("Rpc %s register consul hanpens error for: %v", config.UserRpcServerName, err)
+	if err := consul.RegisterConsul(config.CommentRpcServerName, config.CommentRpcServerPort); err != nil {
+		log.Panicf("Rpc %s register consul happens error for: %v", config.CommentRpcServerName, err)
 	}
-	log.Infof("Rpc %s is running at %s now", config.UserRpcServerName, config.UserRpcServerName)
+	log.Infof("Rpc %s is running at %s now", config.CommentRpcServerName, config.CommentRpcServerPort)
 	if err := s.Serve(lis); err != nil {
-		log.Panicf("Rpc %s listen hanpens error for: %v", config.UserRpcServerName, err)
+		log.Panicf("Rpc %s listen happens error for: %v", config.CommentRpcServerName, err)
 	}
 }

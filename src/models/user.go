@@ -13,12 +13,12 @@ import (
 )
 
 type User struct {
-	UserName        string `gorm:"not null;unique;size: 32;index" redis:"UserName"` // 用户名
-	Password        string `gorm:"not null" redis:"Password"`                       // 密码
-	Role            int    `gorm:"default:1" redis:"Role"`                          // 角色
-	Avatar          string `redis:"Avatar"`                                         // 头像
-	BackgroundImage string `redis:"BackGroundImage"`                                // 背景图片
-	Signature       string `redis:"Signature"`                                      // 个人简介
+	UserName        string `gorm:"type:varchar(32);not null;unique;index" redis:"UserName"` // 用户名
+	Password        string `gorm:"not null" redis:"Password"`                               // 密码
+	Role            int    `gorm:"default:1" redis:"Role"`                                  // 角色
+	Avatar          string `redis:"Avatar"`                                                 // 头像
+	BackgroundImage string `redis:"BackGroundImage"`                                        // 背景图片
+	Signature       string `redis:"Signature"`                                              // 个人简介
 	gorm.Model
 }
 

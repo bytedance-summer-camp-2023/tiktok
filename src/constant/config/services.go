@@ -8,3 +8,6 @@ const AuthRpcServerPort = ":37001"
 
 const UserRpcServerName = "TikTok-UserService"
 const UserRpcServerPort = ":37002"
+
+const CommentRpcServerName = "TikTok-CommentService"
+const CommentRpcServerPort = ":37003"
