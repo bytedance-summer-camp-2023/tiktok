@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -14,6 +15,7 @@ import (
 	"tiktok/src/rpc/comment"
 	"tiktok/src/rpc/user"
 	database "tiktok/src/storage/db"
+	"tiktok/src/utils/consul"
 	"tiktok/src/utils/logging"
 )
 
@@ -24,9 +26,19 @@ type CommentServiceImpl struct {
 }
 
 func init() {
-	conn, err := grpc.Dial(fmt.Sprintf("127.0.0.1%s", config.UserRpcServerPort),
+	service, err := consul.ResolveService(config.UserRpcServerName)
+	if err != nil {
+		logging.Logger.WithFields(logrus.Fields{
+			"err": err,
+		}).Fatalf("Cannot find user rpc server")
+	}
+
+	logging.Logger.Debugf("Found service %v in port %v", service.ServiceID, service.ServicePort)
+
+	conn, err := grpc.Dial(fmt.Sprintf("%v:%v", service.Address, service.ServicePort),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`))
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	if err != nil {
 		logging.Logger.WithFields(logrus.Fields{
 			"err": err,
@@ -37,7 +49,7 @@ func init() {
 
 // ActionComment implements the CommentServiceImpl interface.
 func (c CommentServiceImpl) ActionComment(ctx context.Context, request *comment.ActionCommentRequest) (resp *comment.ActionCommentResponse, err error) {
-	ctx, span := tracing.Tracer.Start(ctx, "ActionCommentService")
+	ctx, span := tracing.Tracer.Start(ctx, "CommentService-ActionCommentService")
 	defer span.End()
 	logger := logging.LogService("CommentService.ActionComment").WithContext(ctx)
 	logger.WithFields(logrus.Fields{
