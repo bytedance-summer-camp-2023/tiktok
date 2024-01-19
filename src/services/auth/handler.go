@@ -13,7 +13,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	strings2 "strings"
+	stringsLib "strings"
 	"sync"
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
@@ -356,7 +356,7 @@ func getToken(ctx context.Context, userId uint) (token string, err error) {
 }
 
 func hasToken(ctx context.Context, token string) (bool, string, error) {
-	ctx, span := tracing.Tracer.Start(ctx, "Redis-HasToken")
+	_, span := tracing.Tracer.Start(ctx, "Redis-HasToken")
 	defer span.End()
 
 	userId, err := redis.Client.Get(ctx, "T2U"+token).Result()
@@ -426,7 +426,7 @@ func getEmailMD5(ctx context.Context, email string) (md5String string) {
 	ctx, span := tracing.Tracer.Start(ctx, "Auth-EmailMD5")
 	defer span.End()
 
-	lowerEmail := strings2.ToLower(email)
+	lowerEmail := stringsLib.ToLower(email)
 	hashed := md5.New()
 	hashed.Write([]byte(lowerEmail))
 	md5Bytes := hashed.Sum(nil)

@@ -59,6 +59,6 @@ func main() {
 
 	// Run Server
 	if err := g.Run(config.WebServiceAddr); err != nil {
-		panic("Can not run GuGoTik Gateway, binding port: " + config.WebServiceAddr)
+		panic("Can not run TikTok Gateway, binding port: " + config.WebServiceAddr)
 	}
 }

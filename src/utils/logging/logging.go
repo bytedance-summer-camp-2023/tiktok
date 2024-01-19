@@ -43,9 +43,6 @@ func (t logTraceHook) Fire(entry *log.Entry) error {
 	}
 
 	span := trace.SpanFromContext(ctx)
-	if !span.IsRecording() {
-		return nil
-	}
 
 	sCtx := span.SpanContext()
 	if sCtx.HasTraceID() {
