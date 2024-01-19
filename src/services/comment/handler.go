@@ -2,12 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel/trace"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"tiktok/src/constant/config"
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
@@ -16,6 +12,7 @@ import (
 	"tiktok/src/rpc/user"
 	database "tiktok/src/storage/db"
 	"tiktok/src/utils/consul"
+	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
 )
 
@@ -35,10 +32,7 @@ func init() {
 
 	logging.Logger.Debugf("Found service %v in port %v", service.ServiceID, service.ServicePort)
 
-	conn, err := grpc.Dial(fmt.Sprintf("%v:%v", service.Address, service.ServicePort),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
-		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+	conn, err := grpc2.Connect(service)
 	if err != nil {
 		logging.Logger.WithFields(logrus.Fields{
 			"err": err,
