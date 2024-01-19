@@ -56,8 +56,8 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 	// 如果token不存在，返回用户不存在的响应
 	if !has {
 		resp = &auth.AuthenticateResponse{
-			StatusCode: strings.AuthUserNotExistedCode,
-			StatusMsg:  strings.AuthUserNotExisted,
+			StatusCode: strings.UserNotExistedCode,
+			StatusMsg:  strings.UserNotExisted,
 		}
 		return
 	}
@@ -266,8 +266,8 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 		// 如果没有找到用户，返回用户不存在的响应
 		if result.RowsAffected == 0 {
 			resp = &auth.LoginResponse{
-				StatusCode: strings.AuthUserNotExistedCode,
-				StatusMsg:  strings.AuthUserNotExisted,
+				StatusCode: strings.UserNotExistedCode,
+				StatusMsg:  strings.UserNotExisted,
 			}
 			return
 		}
