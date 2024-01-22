@@ -12,6 +12,7 @@ import (
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/about"
 	"tiktok/src/gateway/auth"
+	feed2 "tiktok/src/gateway/feed"
 	"tiktok/src/gateway/middleware"
 	"tiktok/src/utils/logging"
 )
@@ -56,7 +57,10 @@ func main() {
 		user.POST("/login", auth.LoginHandle)
 		user.POST("/register", auth.RegisterHandle)
 	}
-
+	feed := rootPath.Group("/feed")
+	{
+		feed.GET("/", feed2.ListVideosHandle)
+	}
 	// Run Server
 	if err := g.Run(config.WebServiceAddr); err != nil {
 		panic("Can not run TikTok Gateway, binding port: " + config.WebServiceAddr)

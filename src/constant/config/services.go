@@ -11,3 +11,12 @@ const UserRpcServerPort = ":37002"
 
 const CommentRpcServerName = "TikTok-CommentService"
 const CommentRpcServerPort = ":37003"
+
+const FeedRpcServerName = "TikTok-FeedService"
+const FeedRpcServerPort = ":37004"
+
+const PublishRpcServerName = "TikTok-PublisherService"
+const PublishRpcServerPort = ":37005"
+
+const FavoriteRpcServerName = "TikTok-FavoriteService"
+const FavoriteRpcServerPort = ":37006"
