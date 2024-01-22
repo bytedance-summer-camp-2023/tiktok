@@ -1,19 +1,16 @@
 package auth
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mbobakov/grpc-consul-resolver"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"tiktok/src/constant/config"
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/models"
 	"tiktok/src/rpc/auth"
+	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
 )
 
@@ -94,17 +91,9 @@ func RegisterHandle(c *gin.Context) {
 }
 
 func init() {
-	conn, err := grpc.Dial(
-		fmt.Sprintf("consul://%s/%s?wait=15s", config.EnvCfg.ConsulAddr, config.AuthRpcServerName),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
-		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
-	)
-
+	conn, err := grpc2.Connect(config.AuthRpcServerName)
 	if err != nil {
-		logging.Logger.WithFields(logrus.Fields{
-			"err": err,
-		}).Errorf("Build AuthService Client meet trouble")
+		panic(err)
 	}
 	Client = auth.NewAuthServiceClient(conn)
 }
