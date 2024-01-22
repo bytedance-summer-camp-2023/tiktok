@@ -41,7 +41,7 @@ func RegisterConsul(name string, port string) error {
 		Check: &capi.AgentServiceCheck{
 			Interval:                       "5s",
 			Timeout:                        "5s",
-			GRPC:                           fmt.Sprintf("%s:%d/Heath", "127.0.0.1", parsedPort),
+			GRPC:                           fmt.Sprintf("%s:%d/Heath", "192.168.31.110", parsedPort),
 			DeregisterCriticalServiceAfter: "30s",
 		},
 	}
