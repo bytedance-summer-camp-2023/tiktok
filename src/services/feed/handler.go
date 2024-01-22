@@ -11,7 +11,6 @@ import (
 	"tiktok/src/extra/tracing"
 	"tiktok/src/models"
 	"tiktok/src/rpc/comment"
-	"tiktok/src/rpc/favorite"
 	"tiktok/src/rpc/feed"
 	"tiktok/src/rpc/user"
 	database "tiktok/src/storage/db"
@@ -21,34 +20,26 @@ import (
 	"time"
 )
 
-const (
-	VideoCount = 30
-)
-
 type FeedServiceImpl struct {
 	feed.FeedServiceServer
 }
 
+const (
+	VideoCount = 30
+)
+
 var UserClient user.UserServiceClient
 var CommentClient comment.CommentServiceClient
-var FavoriteClient favorite.FavoriteServiceClient
+
+//var FavoriteClient favorite.FavoriteServiceClient
 
 func init() {
-	userRpcConn, err := grpc2.Connect(config.UserRpcServerName)
-	if err != nil {
-		panic(err)
-	}
+	userRpcConn := grpc2.Connect(config.UserRpcServerName)
 	UserClient = user.NewUserServiceClient(userRpcConn)
-	commentRpcConn, err := grpc2.Connect(config.CommentRpcServerName)
-	if err != nil {
-		panic(err)
-	}
+	commentRpcConn := grpc2.Connect(config.CommentRpcServerName)
 	CommentClient = comment.NewCommentServiceClient(commentRpcConn)
-	favoriteRpcConn, err := grpc2.Connect(config.FavoriteRpcServerName)
-	if err != nil {
-		panic(err)
-	}
-	FavoriteClient = favorite.NewFavoriteServiceClient(favoriteRpcConn)
+	//favoriteRpcConn := grpc2.Connect(config.FavoriteRpcServerName)
+	//FavoriteClient = favorite.NewFavoriteServiceClient(favoriteRpcConn)
 }
 
 func (s FeedServiceImpl) ListVideos(ctx context.Context, request *feed.ListFeedRequest) (resp *feed.ListFeedResponse, err error) {
@@ -57,23 +48,19 @@ func (s FeedServiceImpl) ListVideos(ctx context.Context, request *feed.ListFeedR
 	logger := logging.LogService("FeedService.ListVideos").WithContext(ctx)
 
 	now := uint32(time.Now().UnixMilli())
-	if request.LatestTime == nil {
-		logger.WithFields(logrus.Fields{
-			"LatestTime": *request.LatestTime,
-		}).Warnf("request.LatestTime is nil.")
-		logging.SetSpanError(span, err)
-	}
 
-	latestTime, err := strconv.ParseInt(*request.LatestTime, 10, 64)
-
+	layout := "2006-01-02T15:04:05.999Z"
+	t, err := time.Parse(layout, *request.LatestTime)
+	latestTime := t.Unix()
 	if err != nil {
-		logger.WithFields(logrus.Fields{
-			"now": now,
-		}).Warnf("strconv.ParseInt meet trouble.")
-		logging.SetSpanError(span, err)
 		var numError *strconv.NumError
 		if errors.As(err, &numError) {
 			latestTime = int64(now)
+			logger.WithFields(logrus.Fields{
+				"latestTime": latestTime,
+				"err":        err,
+			}).Warnf("strconv.ParseInt meet trouble.")
+			logging.SetSpanError(span, err)
 		}
 	}
 	find, err := findVideos(ctx, latestTime)
@@ -89,7 +76,7 @@ func (s FeedServiceImpl) ListVideos(ctx context.Context, request *feed.ListFeedR
 			NextTime:   &now,
 			VideoList:  nil,
 		}
-		return
+		return resp, err
 	}
 	if len(find) == 0 {
 		resp = &feed.ListFeedResponse{
@@ -98,7 +85,7 @@ func (s FeedServiceImpl) ListVideos(ctx context.Context, request *feed.ListFeedR
 			NextTime:   nil,
 			VideoList:  nil,
 		}
-		return
+		return resp, err
 	}
 	nextTime := uint32(find[len(find)-1].CreatedAt.Add(time.Duration(-1)).UnixMilli())
 
@@ -118,7 +105,7 @@ func (s FeedServiceImpl) ListVideos(ctx context.Context, request *feed.ListFeedR
 			NextTime:   nil,
 			VideoList:  nil,
 		}
-		return
+		return resp, err
 	}
 	resp = &feed.ListFeedResponse{
 		StatusCode: strings.ServiceOKCode,
@@ -126,14 +113,14 @@ func (s FeedServiceImpl) ListVideos(ctx context.Context, request *feed.ListFeedR
 		NextTime:   &nextTime,
 		VideoList:  videos,
 	}
-	return
+	return resp, err
 }
 
 func (s FeedServiceImpl) QueryVideos(ctx context.Context, req *feed.QueryVideosRequest) (resp *feed.QueryVideosResponse, err error) {
 	ctx, span := tracing.Tracer.Start(ctx, "QueryVideosService")
 	defer span.End()
 	logger := logging.LogService("FeedService.QueryVideos").WithContext(ctx)
-	FeedServiceInnerError := strings.FeedServiceInnerError
+
 	rst, err := query(ctx, logger, req.ActorId, req.VideoIds)
 	if err != nil {
 		logger.WithFields(logrus.Fields{
@@ -142,10 +129,10 @@ func (s FeedServiceImpl) QueryVideos(ctx context.Context, req *feed.QueryVideosR
 		logging.SetSpanError(span, err)
 		resp = &feed.QueryVideosResponse{
 			StatusCode: strings.FeedServiceInnerErrorCode,
-			StatusMsg:  FeedServiceInnerError,
+			StatusMsg:  strings.FeedServiceInnerError,
 			VideoList:  rst,
 		}
-		return
+		return resp, err
 	}
 
 	resp = &feed.QueryVideosResponse{
@@ -153,7 +140,7 @@ func (s FeedServiceImpl) QueryVideos(ctx context.Context, req *feed.QueryVideosR
 		StatusMsg:  strings.ServiceOK,
 		VideoList:  rst,
 	}
-	return
+	return resp, err
 }
 
 func findVideos(ctx context.Context, latestTime int64) ([]*models.Video, error) {
@@ -244,20 +231,26 @@ func queryDetailed(
 		}(i, v)
 
 		// fill favorite count
+		//go func(i int, v *models.Video) {
+		//	defer wg.Done()
+		//	favoriteCount, localErr := FavoriteClient.CountFavorite(ctx, &favorite.CountFavoriteRequest{
+		//		VideoId: v.ID,
+		//	})
+		//	if localErr != nil {
+		//		logger.WithFields(logrus.Fields{
+		//			"video_id": v.ID,
+		//			"err":      localErr,
+		//		}).Warning("failed to fetch favorite count")
+		//		logging.SetSpanError(span, localErr)
+		//		return
+		//	}
+		//	respVideoList[i].FavoriteCount = favoriteCount.Count
+		//}(i, v)
+
+		// mock favorite count
 		go func(i int, v *models.Video) {
 			defer wg.Done()
-			favoriteCount, localErr := FavoriteClient.CountFavorite(ctx, &favorite.CountFavoriteRequest{
-				VideoId: v.ID,
-			})
-			if localErr != nil {
-				logger.WithFields(logrus.Fields{
-					"video_id": v.ID,
-					"err":      localErr,
-				}).Warning("failed to fetch favorite count")
-				logging.SetSpanError(span, localErr)
-				return
-			}
-			respVideoList[i].FavoriteCount = favoriteCount.Count
+			respVideoList[i].FavoriteCount = uint32(countFavorite())
 		}(i, v)
 
 		// fill comment count
@@ -278,22 +271,29 @@ func queryDetailed(
 		}(i, v)
 
 		// fill is favorite
+		//go func(i int, v *models.Video) {
+		//	defer wg.Done()
+		//	isFavorite, localErr := FavoriteClient.IsFavorite(ctx, &favorite.IsFavoriteRequest{
+		//		ActorId: actorId,
+		//		VideoId: v.ID,
+		//	})
+		//	if localErr != nil {
+		//		logger.WithFields(logrus.Fields{
+		//			"video_id": v.ID,
+		//			"err":      localErr,
+		//		}).Warning("failed to fetch favorite status")
+		//		logging.SetSpanError(span, localErr)
+		//		return
+		//	}
+		//	respVideoList[i].IsFavorite = isFavorite.Result
+		//}(i, v)
+
+		// mock isFavorite
 		go func(i int, v *models.Video) {
 			defer wg.Done()
-			isFavorite, localErr := FavoriteClient.IsFavorite(ctx, &favorite.IsFavoriteRequest{
-				ActorId: actorId,
-				VideoId: v.ID,
-			})
-			if localErr != nil {
-				logger.WithFields(logrus.Fields{
-					"video_id": v.ID,
-					"err":      localErr,
-				}).Warning("failed to fetch favorite status")
-				logging.SetSpanError(span, localErr)
-				return
-			}
-			respVideoList[i].IsFavorite = isFavorite.Result
+			respVideoList[i].IsFavorite = isFavorite()
 		}(i, v)
+
 	}
 	wg.Wait()
 
@@ -308,4 +308,11 @@ func query(ctx context.Context, logger *logrus.Entry, actorId uint32, videoIds [
 		return nil, err
 	}
 	return queryDetailed(ctx, logger, actorId, videos), nil
+}
+
+func countFavorite() int {
+	return 0
+}
+func isFavorite() bool {
+	return true
 }

@@ -11,7 +11,7 @@ import (
 
 func TestListVideos(t *testing.T) {
 
-	url := "http://127.0.0.1:37000/douyin/feed/?latestTime=2023-08-05T18:44:38&token=90aee89f-43c0-4e90-a440-cf4e47c9b790"
+	url := "http://127.0.0.1:37000/douyin/feed/?latest_time=2006-01-02T15:04:05.999Z&token=90aee89f-43c0-4e90-a440-cf4e47c9b790"
 	method := "GET"
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
