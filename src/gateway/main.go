@@ -12,6 +12,7 @@ import (
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/about"
 	"tiktok/src/gateway/auth"
+	comment2 "tiktok/src/gateway/comment"
 	feed2 "tiktok/src/gateway/feed"
 	"tiktok/src/gateway/middleware"
 	"tiktok/src/utils/logging"
@@ -60,6 +61,12 @@ func main() {
 	feed := rootPath.Group("/feed")
 	{
 		feed.GET("/", feed2.ListVideosHandle)
+	}
+	comment := rootPath.Group("/comment")
+	{
+		comment.POST("/action", comment2.ActionCommentHandler)
+		comment.GET("/list", comment2.ListCommentHandler)
+		comment.GET("/count", comment2.CountCommentHandler)
 	}
 	// Run Server
 	if err := g.Run(config.WebServiceAddr); err != nil {
