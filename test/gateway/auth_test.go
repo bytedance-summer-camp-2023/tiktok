@@ -1,4 +1,4 @@
-package web
+package gateway
 
 import (
 	"encoding/json"

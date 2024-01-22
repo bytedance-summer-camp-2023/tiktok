@@ -20,7 +20,7 @@ func init() {
 		consulClient = c
 		return
 	} else {
-		logging.Logger.Panicf("Connect Consul happens error: %v", err)
+		logging.Logger.Errorf("Connect Consul happens error: %v", err)
 	}
 }
 
