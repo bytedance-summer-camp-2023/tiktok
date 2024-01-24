@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/go-redis/redis_rate/v10"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/trace"
 	"tiktok/src/constant/config"
@@ -11,11 +13,21 @@ import (
 	"tiktok/src/rpc/comment"
 	"tiktok/src/rpc/user"
 	"tiktok/src/storage/db"
+	"tiktok/src/storage/redis"
 	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
 )
 
 var UserClient user.UserServiceClient
+
+var actionCommentLimitKeyPrefix = config.EnvCfg.RedisPrefix + "comment_freq_limit"
+
+const actionCommentMaxQPS = 3 // Maximum ActionComment query amount of an actor per second
+
+// Return redis key to record the amount of ActionComment query of an actor, e.g., comment_freq_limit-1-1669524458
+func actionCommentLimitKey(userId uint32) string {
+	return fmt.Sprintf("%s-%d", actionCommentLimitKeyPrefix, userId)
+}
 
 type CommentServiceImpl struct {
 	comment.CommentServiceServer
@@ -28,7 +40,7 @@ func init() {
 
 // ActionComment implements the CommentServiceImpl interface.
 func (c CommentServiceImpl) ActionComment(ctx context.Context, request *comment.ActionCommentRequest) (resp *comment.ActionCommentResponse, err error) {
-	ctx, span := tracing.Tracer.Start(ctx, "ActionComment")
+	ctx, span := tracing.Tracer.Start(ctx, "ActionCommentService")
 	defer span.End()
 	logger := logging.LogService("CommentService.ActionComment").WithContext(ctx)
 	logger.WithFields(logrus.Fields{
@@ -37,8 +49,7 @@ func (c CommentServiceImpl) ActionComment(ctx context.Context, request *comment.
 		"action_type":  request.ActionType,
 		"comment_text": request.GetCommentText(),
 		"comment_id":   request.GetCommentId(),
-	})
-	logger.Debugf("Process start")
+	}).Debugf("Process start")
 
 	var pCommentText string
 	var pCommentID uint32
@@ -52,10 +63,43 @@ func (c CommentServiceImpl) ActionComment(ctx context.Context, request *comment.
 		fallthrough
 	default:
 		logger.Warnf("Invalid action type")
-		return &comment.ActionCommentResponse{
+		resp = &comment.ActionCommentResponse{
 			StatusCode: strings.ActionCommentTypeInvalidCode,
 			StatusMsg:  strings.ActionCommentTypeInvalid,
-		}, nil
+		}
+		return
+	}
+
+	// Rate limiting
+	limiter := redis_rate.NewLimiter(redis.Client)
+	limiterKey := actionCommentLimitKey(request.ActorId)
+	limiterRes, err := limiter.Allow(ctx, limiterKey, redis_rate.PerSecond(actionCommentMaxQPS))
+	if err != nil {
+		logger.WithFields(logrus.Fields{
+			"err":     err,
+			"ActorId": request.ActorId,
+		}).Errorf("ActionComment limiter error")
+		logging.SetSpanError(span, err)
+
+		resp = &comment.ActionCommentResponse{
+			StatusCode: strings.UnableToCreateCommentErrorCode,
+			StatusMsg:  strings.UnableToCreateCommentError,
+		}
+
+		return
+	}
+	if limiterRes.Allowed == 0 {
+		logger.WithFields(logrus.Fields{
+			"err":     err,
+			"ActorId": request.ActorId,
+		}).Infof("Action comment query too frequently by user %d", request.ActorId)
+
+		resp = &comment.ActionCommentResponse{
+			StatusCode: strings.ActionCommentLimitedCode,
+			StatusMsg:  strings.ActionCommentLimited,
+		}
+
+		return
 	}
 
 	// TODO: Video check: check if the qVideo exists || check if creator is the same as actor
@@ -73,10 +117,11 @@ func (c CommentServiceImpl) ActionComment(ctx context.Context, request *comment.
 		}).Errorf("User service error")
 		logging.SetSpanError(span, err)
 
-		return &comment.ActionCommentResponse{
+		resp = &comment.ActionCommentResponse{
 			StatusCode: strings.UnableToQueryUserErrorCode,
 			StatusMsg:  strings.UnableToQueryUserError,
-		}, nil
+		}
+		return
 	}
 
 	pUser := userResponse.User
@@ -89,26 +134,25 @@ func (c CommentServiceImpl) ActionComment(ctx context.Context, request *comment.
 	}
 
 	if err != nil {
-		return resp, err
+		return
 	}
 
 	logger.WithFields(logrus.Fields{
 		"response": resp,
 	}).Debugf("Process done.")
 
-	return resp, err
+	return
 }
 
 // ListComment implements the CommentServiceImpl interface.
 func (c CommentServiceImpl) ListComment(ctx context.Context, request *comment.ListCommentRequest) (resp *comment.ListCommentResponse, err error) {
-	ctx, span := tracing.Tracer.Start(ctx, "ListComment")
+	ctx, span := tracing.Tracer.Start(ctx, "ListCommentService")
 	defer span.End()
 	logger := logging.LogService("CommentService.ListComment").WithContext(ctx)
 	logger.WithFields(logrus.Fields{
 		"user_id":  request.ActorId,
 		"video_id": request.VideoId,
-	})
-	logger.Debugf("Process start")
+	}).Debugf("Process start")
 
 	// TODO: Video check: check if the qVideo exists
 
@@ -167,14 +211,13 @@ func (c CommentServiceImpl) ListComment(ctx context.Context, request *comment.Li
 
 // CountComment implements the CommentServiceImpl interface.
 func (c CommentServiceImpl) CountComment(ctx context.Context, request *comment.CountCommentRequest) (resp *comment.CountCommentResponse, err error) {
-	ctx, span := tracing.Tracer.Start(ctx, "CountComment")
+	ctx, span := tracing.Tracer.Start(ctx, "CountCommentService")
 	defer span.End()
 	logger := logging.LogService("CommentService.CountComment").WithContext(ctx)
 	logger.WithFields(logrus.Fields{
 		"user_id":  request.ActorId,
 		"video_id": request.VideoId,
-	})
-	logger.Debugf("Process start")
+	}).Debugf("Process start")
 
 	rCount, err := count(ctx, request.VideoId)
 	if err != nil {

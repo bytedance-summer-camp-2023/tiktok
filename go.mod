@@ -6,6 +6,7 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/gin-contrib/gzip v0.0.6
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-redis/redis_rate/v10 v10.0.1
 	github.com/google/uuid v1.3.1
 	github.com/hashicorp/consul/api v1.20.0
 	github.com/joho/godotenv v1.5.1
