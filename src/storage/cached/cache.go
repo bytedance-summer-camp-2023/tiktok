@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strconv"
 	"sync"
+	"tiktok/src/constant/config"
 	"tiktok/src/extra/tracing"
 	database "tiktok/src/storage/db"
 	"tiktok/src/storage/redis"
@@ -33,6 +34,7 @@ func ScanGet(ctx context.Context, key string, obj interface{}) bool {
 	ctx, span := tracing.Tracer.Start(ctx, "Cached-GetFromScanCache")
 	defer span.End()
 	logger := logging.LogService("Cached.GetFromScanCache").WithContext(ctx)
+	key = config.EnvCfg.RedisPrefix + key
 
 	c := getOrCreateCache(key)
 	wrappedObj := obj.(cachedItem)
@@ -94,6 +96,8 @@ func ScanGet(ctx context.Context, key string, obj interface{}) bool {
 func ScanTagDelete(ctx context.Context, key string, obj interface{}) {
 	ctx, span := tracing.Tracer.Start(ctx, "Cached-ScanTagDelete")
 	defer span.End()
+	key = config.EnvCfg.RedisPrefix + key
+
 	redis.Client.HDel(ctx, key)
 
 	c := getOrCreateCache(key)
@@ -107,6 +111,7 @@ func ScanWriteCache(ctx context.Context, key string, obj interface{}, state bool
 	ctx, span := tracing.Tracer.Start(ctx, "Cached-ScanWriteCache")
 	defer span.End()
 	logger := logging.LogService("Cached.ScanWriteCache").WithContext(ctx)
+	key = config.EnvCfg.RedisPrefix + key
 
 	wrappedObj := obj.(cachedItem)
 	key = key + strconv.FormatUint(uint64(wrappedObj.GetID()), 10)
@@ -131,6 +136,7 @@ func Get(ctx context.Context, key string) (string, bool) {
 	ctx, span := tracing.Tracer.Start(ctx, "Cached-GetFromStringCache")
 	defer span.End()
 	logger := logging.LogService("Cached.GetFromStringCache").WithContext(ctx)
+	key = config.EnvCfg.RedisPrefix + key
 
 	c := getOrCreateCache("strings")
 	if x, found := c.Get(key); found {
@@ -143,7 +149,7 @@ func Get(ctx context.Context, key string) (string, bool) {
 	}).Infof("Missed local memory cached")
 
 	var result *redis2.StringCmd
-	if result = redis.Client.Get(ctx, key); result.Err() != nil {
+	if result = redis.Client.Get(ctx, key); result.Err() != nil && result.Err() != redis2.Nil {
 		logger.WithFields(logrus.Fields{
 			"err":    result.Err(),
 			"string": key,
@@ -168,9 +174,11 @@ func Get(ctx context.Context, key string) (string, bool) {
 }
 
 // GetWithFunc 从缓存中获取字符串，如果不存在调用 Func 函数获取
-func GetWithFunc(ctx context.Context, key string, f func(ctx context.Context, key string) (value string)) string {
+func GetWithFunc(ctx context.Context, key string, f func(ctx context.Context, key string) string) string {
 	ctx, span := tracing.Tracer.Start(ctx, "Cached-GetFromStringCacheWithFunc")
 	defer span.End()
+	key = config.EnvCfg.RedisPrefix + key
+
 	value, ok := Get(ctx, key)
 	if ok {
 		return value
@@ -185,6 +193,7 @@ func GetWithFunc(ctx context.Context, key string, f func(ctx context.Context, ke
 func Write(ctx context.Context, key string, value string, state bool) {
 	ctx, span := tracing.Tracer.Start(ctx, "Cached-SetStringCache")
 	defer span.End()
+	key = config.EnvCfg.RedisPrefix + key
 
 	c := getOrCreateCache("strings")
 	c.Set(key, value, cache.DefaultExpiration)
@@ -198,6 +207,7 @@ func Write(ctx context.Context, key string, value string, state bool) {
 func TagDelete(ctx context.Context, key string) {
 	ctx, span := tracing.Tracer.Start(ctx, "Cached-DeleteStringCache")
 	defer span.End()
+	key = config.EnvCfg.RedisPrefix + key
 
 	c := getOrCreateCache("strings")
 	c.Delete(key)

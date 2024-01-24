@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 	"gorm.io/plugin/opentelemetry/tracing"
 	"tiktok/src/constant/config"
 	"tiktok/src/utils/logging"
@@ -26,6 +27,9 @@ func init() {
 		mysql.Open((dsn)), &gorm.Config{
 			PrepareStmt: true,
 			Logger:      gormLogrus,
+			NamingStrategy: schema.NamingStrategy{
+				TablePrefix: config.EnvCfg.MySQLSchema,
+			},
 		},
 	); err != nil {
 		panic(err)
