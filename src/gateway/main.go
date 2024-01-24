@@ -17,6 +17,7 @@ import (
 	feed2 "tiktok/src/gateway/feed"
 	message2 "tiktok/src/gateway/message"
 	"tiktok/src/gateway/middleware"
+	publish2 "tiktok/src/gateway/publish"
 	relation2 "tiktok/src/gateway/relation"
 	"tiktok/src/utils/logging"
 )
@@ -91,6 +92,11 @@ func main() {
 		relation.GET("/follow/count", relation2.CountFollowHandler)
 		relation.GET("/follower/count", relation2.CountFollowerHandler)
 		relation.GET("/isFollow", relation2.IsFollowHandler)
+	}
+	publish := rootPath.Group("/publish")
+	{
+		//publish.POST("/action", publish2.ActionPublishHandle)
+		publish.GET("/list", publish2.ListPublishHandle)
 	}
 	// Run Server
 	if err := g.Run(config.WebServiceAddr); err != nil {

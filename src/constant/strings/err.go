@@ -38,6 +38,8 @@ const (
 	UnableToRelateYourselfError      = "无法关注自己"
 	RelationNotFoundErrorCode        = 50014
 	RelationNotFoundError            = "未关注该用户"
+	PublishServiceInnerErrorCode     = 50015
+	PublishServiceInnerError         = "发布服务出现内部错误，请稍后重试！"
 )
 
 // Expected Error

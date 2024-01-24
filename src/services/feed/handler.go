@@ -11,6 +11,7 @@ import (
 	"tiktok/src/extra/tracing"
 	"tiktok/src/models"
 	"tiktok/src/rpc/comment"
+	"tiktok/src/rpc/favorite"
 	"tiktok/src/rpc/feed"
 	"tiktok/src/rpc/user"
 	database "tiktok/src/storage/db"
@@ -31,15 +32,15 @@ const (
 var UserClient user.UserServiceClient
 var CommentClient comment.CommentServiceClient
 
-//var FavoriteClient favorite.FavoriteServiceClient
+var FavoriteClient favorite.FavoriteServiceClient
 
 func init() {
 	userRpcConn := grpc2.Connect(config.UserRpcServerName)
 	UserClient = user.NewUserServiceClient(userRpcConn)
 	commentRpcConn := grpc2.Connect(config.CommentRpcServerName)
 	CommentClient = comment.NewCommentServiceClient(commentRpcConn)
-	//favoriteRpcConn := grpc2.Connect(config.FavoriteRpcServerName)
-	//FavoriteClient = favorite.NewFavoriteServiceClient(favoriteRpcConn)
+	favoriteRpcConn := grpc2.Connect(config.FavoriteRpcServerName)
+	FavoriteClient = favorite.NewFavoriteServiceClient(favoriteRpcConn)
 }
 
 func (s FeedServiceImpl) ListVideos(ctx context.Context, request *feed.ListFeedRequest) (resp *feed.ListFeedResponse, err error) {
