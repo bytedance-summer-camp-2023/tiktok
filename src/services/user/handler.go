@@ -22,29 +22,18 @@ func (a UserServiceImpl) GetUserInfo(ctx context.Context, request *user.UserRequ
 
 	var userModel models.User
 	userModel.ID = request.UserId
-	err = nil
-	cached.ScanGet(ctx, "UserInfo", &userModel)
-	if err != nil {
-		logger.WithFields(logrus.Fields{
-			"err":     err,
-			"UserId":  request.UserId,
-			"ActorId": request.ActorId,
-		}).Errorf("Error when get user info")
-		logging.SetSpanError(span, err)
-		resp = &user.UserResponse{
-			StatusCode: strings.UserServiceInnerErrorCode,
-			StatusMsg:  strings.UserServiceInnerError,
-			User:       nil,
-		}
-		return
-	}
+	ok := cached.ScanGet(ctx, "UserInfo", &userModel)
 
-	if userModel.UserName == "" {
+	if !ok {
 		resp = &user.UserResponse{
 			StatusCode: strings.UserNotExistedCode,
 			StatusMsg:  strings.UserNotExisted,
 			User:       nil,
 		}
+		logger.WithFields(logrus.Fields{
+			"user": request.UserId,
+		})
+		return
 	}
 
 	//TODO 等待其他服务写完后接入
