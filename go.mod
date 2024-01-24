@@ -6,6 +6,7 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/gin-contrib/gzip v0.0.6
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-kit/kit v0.9.0
 	github.com/go-redis/redis_rate/v10 v10.0.1
 	github.com/google/uuid v1.3.1
 	github.com/hashicorp/consul/api v1.20.0
@@ -13,6 +14,7 @@ require (
 	github.com/mbobakov/grpc-consul-resolver v1.5.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pyroscope-io/client v0.7.2
+	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
 	github.com/redis/go-redis/v9 v9.1.0
 	github.com/sirupsen/logrus v1.9.3
@@ -76,6 +78,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-critic/go-critic v0.7.0 // indirect
+	github.com/go-logfmt/logfmt v0.5.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/form v3.1.4+incompatible // indirect
@@ -200,6 +203,7 @@ require (
 	github.com/spf13/viper v1.16.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
+	github.com/streadway/amqp v1.1.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/t-yuki/gocover-cobertura v0.0.0-20180217150009-aaee18c8195c // indirect
@@ -218,7 +222,6 @@ require (
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	gitlab.com/bosi/decorder v0.2.3 // indirect
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
-	go.uber.org/goleak v1.2.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.25.0 // indirect
 	golang.org/x/arch v0.4.0 // indirect

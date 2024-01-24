@@ -26,3 +26,5 @@ const RelationRpcServerPort = ":37008"
 
 const MessageRpcServerName = "TikTok-MessageService"
 const MessageRpcServerPort = ":37010"
+
+const VideoPicker = "TikTok-VideoPicker"
