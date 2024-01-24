@@ -17,6 +17,7 @@ import (
 	feed2 "tiktok/src/gateway/feed"
 	message2 "tiktok/src/gateway/message"
 	"tiktok/src/gateway/middleware"
+	relation2 "tiktok/src/gateway/relation"
 	"tiktok/src/utils/logging"
 )
 
@@ -76,6 +77,20 @@ func main() {
 		message.GET("/chat", message2.ListMessageHandler)
 		message.POST("/action", message2.ActionMessageHandler)
 		fmt.Println(message)
+	}
+
+	relation := rootPath.Group("/relation")
+	{
+		//todo: frontend
+		//relation.POST("/action", relation2.ActionHandler)
+		relation.POST("/follow", relation2.FollowHandler)
+		relation.POST("/unfollow", relation2.UnfollowHandler)
+		relation.GET("/follow/list", relation2.GetFollowListHandler)
+		relation.GET("/follower/list", relation2.GetFollowerListHandler)
+		relation.GET("/friend/list", relation2.GetFriendListHandler)
+		relation.GET("/follow/count", relation2.CountFollowHandler)
+		relation.GET("/follower/count", relation2.CountFollowerHandler)
+		relation.GET("/isFollow", relation2.IsFollowHandler)
 	}
 	// Run Server
 	if err := g.Run(config.WebServiceAddr); err != nil {
