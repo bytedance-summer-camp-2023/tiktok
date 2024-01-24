@@ -31,7 +31,6 @@ const (
 
 var UserClient user.UserServiceClient
 var CommentClient comment.CommentServiceClient
-
 var FavoriteClient favorite.FavoriteServiceClient
 
 func init() {
@@ -232,27 +231,27 @@ func queryDetailed(
 		}(i, v)
 
 		// fill favorite count
-		//go func(i int, v *models.Video) {
-		//	defer wg.Done()
-		//	favoriteCount, localErr := FavoriteClient.CountFavorite(ctx, &favorite.CountFavoriteRequest{
-		//		VideoId: v.ID,
-		//	})
-		//	if localErr != nil {
-		//		logger.WithFields(logrus.Fields{
-		//			"video_id": v.ID,
-		//			"err":      localErr,
-		//		}).Warning("failed to fetch favorite count")
-		//		logging.SetSpanError(span, localErr)
-		//		return
-		//	}
-		//	respVideoList[i].FavoriteCount = favoriteCount.Count
-		//}(i, v)
-
-		// mock favorite count
 		go func(i int, v *models.Video) {
 			defer wg.Done()
-			respVideoList[i].FavoriteCount = uint32(countFavorite())
+			favoriteCount, localErr := FavoriteClient.CountFavorite(ctx, &favorite.CountFavoriteRequest{
+				VideoId: v.ID,
+			})
+			if localErr != nil {
+				logger.WithFields(logrus.Fields{
+					"video_id": v.ID,
+					"err":      localErr,
+				}).Warning("failed to fetch favorite count")
+				logging.SetSpanError(span, localErr)
+				return
+			}
+			respVideoList[i].FavoriteCount = favoriteCount.Count
 		}(i, v)
+
+		// mock favorite count
+		//go func(i int, v *models.Video) {
+		//	defer wg.Done()
+		//	respVideoList[i].FavoriteCount = uint32(countFavorite())
+		//}(i, v)
 
 		// fill comment count
 		go func(i int, v *models.Video) {
@@ -272,28 +271,28 @@ func queryDetailed(
 		}(i, v)
 
 		// fill is favorite
-		//go func(i int, v *models.Video) {
-		//	defer wg.Done()
-		//	isFavorite, localErr := FavoriteClient.IsFavorite(ctx, &favorite.IsFavoriteRequest{
-		//		ActorId: actorId,
-		//		VideoId: v.ID,
-		//	})
-		//	if localErr != nil {
-		//		logger.WithFields(logrus.Fields{
-		//			"video_id": v.ID,
-		//			"err":      localErr,
-		//		}).Warning("failed to fetch favorite status")
-		//		logging.SetSpanError(span, localErr)
-		//		return
-		//	}
-		//	respVideoList[i].IsFavorite = isFavorite.Result
-		//}(i, v)
-
-		// mock isFavorite
 		go func(i int, v *models.Video) {
 			defer wg.Done()
-			respVideoList[i].IsFavorite = isFavorite()
+			isFavorite, localErr := FavoriteClient.IsFavorite(ctx, &favorite.IsFavoriteRequest{
+				ActorId: actorId,
+				VideoId: v.ID,
+			})
+			if localErr != nil {
+				logger.WithFields(logrus.Fields{
+					"video_id": v.ID,
+					"err":      localErr,
+				}).Warning("failed to fetch favorite status")
+				logging.SetSpanError(span, localErr)
+				return
+			}
+			respVideoList[i].IsFavorite = isFavorite.Result
 		}(i, v)
+
+		// mock isFavorite
+		//go func(i int, v *models.Video) {
+		//	defer wg.Done()
+		//	respVideoList[i].IsFavorite = isFavorite()
+		//}(i, v)
 
 	}
 	wg.Wait()
@@ -311,9 +310,9 @@ func query(ctx context.Context, logger *logrus.Entry, actorId uint32, videoIds [
 	return queryDetailed(ctx, logger, actorId, videos), nil
 }
 
-func countFavorite() int {
-	return 0
-}
-func isFavorite() bool {
-	return true
-}
+//func countFavorite() int {
+//	return 0
+//}
+//func isFavorite() bool {
+//	return true
+//}
