@@ -351,8 +351,19 @@ func deleteComment(ctx context.Context, logger *logrus.Entry, span trace.Span, p
 }
 
 func count(ctx context.Context, videoId uint32) (count int64, err error) {
+	ctx, span := tracing.Tracer.Start(ctx, "CountComment")
+	defer span.End()
+	logger := logging.LogService("CommentService.CountComment").WithContext(ctx)
+
 	result := database.Client.Model(&models.Comment{}).WithContext(ctx).
 		Where("video_id = ?", videoId).
 		Count(&count)
+
+	if result.Error != nil {
+		logger.WithFields(logrus.Fields{
+			"err": err,
+		}).Errorf("Faild to count comments")
+		logging.SetSpanError(span, err)
+	}
 	return count, result.Error
 }
