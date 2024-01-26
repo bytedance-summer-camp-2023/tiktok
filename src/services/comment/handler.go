@@ -104,7 +104,7 @@ func (c CommentServiceImpl) ActionComment(ctx context.Context, request *comment.
 		return
 	}
 
-	// Get target user TODO: 重复的用户不重复查询
+	// Get target user
 	userResponse, err := userClient.GetUserInfo(ctx, &user.UserRequest{
 		UserId:  request.ActorId,
 		ActorId: request.ActorId,
@@ -190,15 +190,15 @@ func (c CommentServiceImpl) ListComment(ctx context.Context, request *comment.Li
 					"pComment": pComment,
 				}).Errorf("Unable to get user info")
 				logging.SetSpanError(span, err)
+
 				resp = &comment.ListCommentResponse{
 					StatusCode: strings.UnableToQueryUserErrorCode,
 					StatusMsg:  strings.UnableToQueryUserError,
 				}
-				return
+				return resp, err
 			}
 			curUser = userResponse.User
 			userList[pComment.UserId] = curUser
-
 		}
 
 		rCommentList = append(rCommentList, &comment.Comment{
@@ -244,7 +244,7 @@ func (c CommentServiceImpl) CountComment(ctx context.Context, request *comment.C
 		})
 
 	rCount, err := strconv.ParseUint(countString, 10, 64)
-	if countString == "error" || err != nil {
+	if err != nil {
 		cached.TagDelete(ctx, "CommentCount")
 		logger.WithFields(logrus.Fields{
 			"err":      err,
