@@ -28,16 +28,20 @@ type AuthServiceImpl struct {
 	auth.AuthServiceServer
 }
 
-// Authenticate 方法用于验证用户的token是否有效
 func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.AuthenticateRequest) (resp *auth.AuthenticateResponse, err error) {
-	// 开始一个新的追踪span
 	ctx, span := tracing.Tracer.Start(ctx, "AuthenticateService")
-
-	// 确保span在函数结束时关闭
 	defer span.End()
 	logger := logging.LogService("AuthService.Authenticate").WithContext(ctx)
-	// 检查token是否存在
-	userId, ok := hasToken(ctx, request.Token)
+
+	userId, ok, err := hasToken(ctx, request.Token)
+
+	if err != nil {
+		resp = &auth.AuthenticateResponse{
+			StatusCode: strings.AuthServiceInnerErrorCode,
+			StatusMsg:  strings.AuthServiceInnerError,
+		}
+		return
+	}
 
 	if !ok {
 		resp = &auth.AuthenticateResponse{
@@ -47,15 +51,14 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 		return
 	}
 
-	// 尝试将用户ID从字符串转换为无符号32位整数
 	id, err := strconv.ParseUint(userId, 10, 32)
-	// 如果在转换过程中发生错误，返回内部错误的响应
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			"err":   err,
 			"token": request.Token,
 		}).Warnf("AuthService Authenticate Action failed to response when parsering uint")
-		span.RecordError(err)
+		logging.SetSpanError(span, err)
+
 		resp = &auth.AuthenticateResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -63,31 +66,23 @@ func (a AuthServiceImpl) Authenticate(ctx context.Context, request *auth.Authent
 		return
 	}
 
-	// 创建一个新的响应，设置状态码为OK的状态码，状态消息为OK的状态消息，用户ID为转换后的用户ID
 	resp = &auth.AuthenticateResponse{
 		StatusCode: strings.ServiceOKCode,
 		StatusMsg:  strings.ServiceOK,
 		UserId:     uint32(id),
 	}
 
-	// 返回响应
 	return
 }
 
-// Register 方法用于注册新用户
 func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterRequest) (resp *auth.RegisterResponse, err error) {
-	// 开始一个新的追踪span
 	ctx, span := tracing.Tracer.Start(ctx, "RegisterService")
-	// 确保span在函数结束时关闭
 	defer span.End()
 	logger := logging.LogService("AuthService.Register").WithContext(ctx)
 
-	// 初始化响应
 	resp = &auth.RegisterResponse{}
 	var user models.User
-	// 在数据库中查找是否已存在同名用户
 	result := database.Client.WithContext(ctx).Limit(1).Where("user_name = ?", request.Username).Find(&user)
-	// 如果找到了同名用户，返回用户已存在的响应
 	if result.RowsAffected != 0 {
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthUserExistedCode,
@@ -96,15 +91,14 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		return
 	}
 
-	// 对用户密码进行哈希处理
 	var hashedPassword string
 	if hashedPassword, err = hashPassword(ctx, request.Password); err != nil {
-		// 如果在哈希处理过程中发生错误，返回内部错误的响应
 		logger.WithFields(logrus.Fields{
 			"err":      result.Error,
 			"username": request.Username,
 		}).Warnf("AuthService Register Action failed to response when hashing password")
-		span.RecordError(err)
+		logging.SetSpanError(span, err)
+
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -112,14 +106,12 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		return
 	}
 
-	// 使用WaitGroup来同步并发的goroutine
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
-	// 在一个新的goroutine中获取用户签名
+	//Get Sign
 	go func() {
 		defer wg.Done()
-		// 从hitokoto服务获取一句话作为用户签名
 		resp, err := http.Get("https://v1.hitokoto.cn/?c=b&encode=text")
 		_, span := tracing.Tracer.Start(ctx, "FetchSignature")
 		defer span.End()
@@ -130,7 +122,7 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			logger.WithFields(logrus.Fields{
 				"err": err,
 			}).Warnf("Can not reach hitokoto")
-			span.RecordError(err)
+			logging.SetSpanError(span, err)
 			return
 		}
 
@@ -139,51 +131,43 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 			logger.WithFields(logrus.Fields{
 				"status_code": resp.StatusCode,
 			}).Warnf("Hitokoto service may be error")
-			span.RecordError(err)
+			logging.SetSpanError(span, err)
 			return
 		}
 
-		// 读取hitokoto服务返回的响应体作为用户签名
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			// 如果在读取响应体过程中发生错误，使用用户名作为签名
 			user.Signature = user.UserName
 			logger.WithFields(logrus.Fields{
 				"err": err,
 			}).Warnf("Can not decode the response body of hitokoto")
-			span.RecordError(err)
+			logging.SetSpanError(span, err)
 			return
 		}
 
-		// 设置用户签名
 		user.Signature = string(body)
 	}()
 
-	// 在一个新的goroutine中获取用户头像
 	go func() {
 		defer wg.Done()
-		// 如果用户名是一个邮箱地址，使用邮箱地址获取用户头像
 		if user.IsNameEmail() {
 			user.Avatar = getAvatarByEmail(ctx, user.UserName)
 		}
 	}()
 
-	// 等待所有goroutine完成
 	wg.Wait()
 
-	// 设置用户名和密码
 	user.UserName = request.Username
 	user.Password = hashedPassword
 
-	// 在数据库中创建新用户
 	result = database.Client.WithContext(ctx).Create(&user)
 	if result.Error != nil {
-		// 如果在创建用户过程中发生错误，返回内部错误的响应
 		logger.WithFields(logrus.Fields{
 			"err":      result.Error,
 			"username": request.Username,
 		}).Warnf("AuthService Register Action failed to response when creating user")
-		span.RecordError(err)
+		logging.SetSpanError(span, result.Error)
+
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
@@ -191,56 +175,57 @@ func (a AuthServiceImpl) Register(ctx context.Context, request *auth.RegisterReq
 		return
 	}
 
-	// 获取用户token
-	if resp.Token = getToken(ctx, user.ID); err != nil {
-		// 如果在获取token过程中发生错误，返回内部错误的响应
-		logger.WithFields(logrus.Fields{
-			"err":      result.Error,
-			"username": request.Username,
-		}).Warnf("AuthService Register Action failed to response when getting token")
-		span.RecordError(err)
+	resp.Token, err = getToken(ctx, user.ID)
+
+	if err != nil {
 		resp = &auth.RegisterResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
 		}
-		return resp, nil
+		return
 	}
 
-	// 设置响应的用户ID，状态码和状态消息
+	logger.WithFields(logrus.Fields{
+		"username": request.Username,
+	}).Infof("User register success!")
+
 	resp.UserId = uint32(user.ID)
 	resp.StatusCode = strings.ServiceOKCode
 	resp.StatusMsg = strings.ServiceOK
 	return
 }
 
-// Login 方法用于验证用户的登录信息
 func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) (resp *auth.LoginResponse, err error) {
-	// 开始一个新的追踪span
 	ctx, span := tracing.Tracer.Start(ctx, "LoginService")
-	// 确保span在函数结束时关闭
 	defer span.End()
 	logger := logging.LogService("AuthService.Login").WithContext(ctx)
 	logger.WithFields(logrus.Fields{
 		"username": request.Username,
 	}).Infof("User try to log in.")
 
-	// 初始化响应
 	resp = &auth.LoginResponse{}
 	user := models.User{
 		UserName: request.Username,
 	}
-	// 在Redis中验证用户信息
-	if !isUserVerifiedInRedis(ctx, request.Username, request.Password) {
-		// 在数据库中查找用户
-		result := database.Client.Where("user_name = ?", request.Username).WithContext(ctx).Find(&user)
 
-		logger.WithFields(logrus.Fields{
-			"err":      result.Error,
-			"username": request.Username,
-		}).Warnf("AuthService Login Action failed to response with inner err.")
-		span.RecordError(result.Error)
-		// 如果在查找过程中发生错误，返回内部错误的响应
+	ok, err := isUserVerifiedInRedis(ctx, request.Username, request.Password)
+	if err != nil {
+		resp = &auth.LoginResponse{
+			StatusCode: strings.AuthServiceInnerErrorCode,
+			StatusMsg:  strings.AuthServiceInnerError,
+		}
+		return
+	}
+
+	if !ok {
+		result := database.Client.Where("user_name = ?", request.Username).WithContext(ctx).Find(&user)
 		if result.Error != nil {
+			logger.WithFields(logrus.Fields{
+				"err":      result.Error,
+				"username": request.Username,
+			}).Warnf("AuthService Login Action failed to response with inner err.")
+			logging.SetSpanError(span, result.Error)
+
 			resp = &auth.LoginResponse{
 				StatusCode: strings.AuthServiceInnerErrorCode,
 				StatusMsg:  strings.AuthServiceInnerError,
@@ -248,7 +233,6 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 			return
 		}
 
-		// 如果没有找到用户，返回用户不存在的响应
 		if result.RowsAffected == 0 {
 			resp = &auth.LoginResponse{
 				StatusCode: strings.UserNotExistedCode,
@@ -257,7 +241,6 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 			return
 		}
 
-		// 验证用户密码
 		if !checkPasswordHash(ctx, request.Password, user.Password) {
 			resp = &auth.LoginResponse{
 				StatusCode: strings.AuthUserLoginFailedCode,
@@ -266,44 +249,44 @@ func (a AuthServiceImpl) Login(ctx context.Context, request *auth.LoginRequest) 
 			return
 		}
 
-		// 对用户密码进行哈希处理
 		hashed, errs := hashPassword(ctx, request.Password)
 		if errs != nil {
 			logger.WithFields(logrus.Fields{
 				"err":      errs,
 				"username": request.Username,
 			}).Warnf("AuthService Login Action failed to response with inner err.")
-			span.RecordError(errs)
+			logging.SetSpanError(span, errs)
+
 			resp = &auth.LoginResponse{
 				StatusCode: strings.AuthServiceInnerErrorCode,
 				StatusMsg:  strings.AuthServiceInnerError,
 			}
 			return
 		}
-		// 将用户信息存储到Redis
-		setUserInfoToRedis(ctx, user.UserName, hashed)
+
+		if err := setUserInfoToRedis(ctx, user.UserName, hashed); err != nil {
+			resp = &auth.LoginResponse{
+				StatusCode: strings.AuthServiceInnerErrorCode,
+				StatusMsg:  strings.AuthServiceInnerError,
+			}
+			return
+		}
 	}
 
-	// 获取用户token
-	token := getToken(ctx, user.ID)
+	token, err := getToken(ctx, user.ID)
+
 	if err != nil {
-		logger.WithFields(logrus.Fields{
-			"err":      err,
-			"username": request.Username,
-		}).Warnf("AuthService Login Action failed to response with inner err.")
-		span.RecordError(err)
 		resp = &auth.LoginResponse{
 			StatusCode: strings.AuthServiceInnerErrorCode,
 			StatusMsg:  strings.AuthServiceInnerError,
 		}
-		return resp, nil
+		return
 	}
 
-	// 设置响应的用户ID，状态码，状态消息和token
 	resp = &auth.LoginResponse{
 		StatusCode: strings.ServiceOKCode,
 		StatusMsg:  strings.ServiceOK,
-		UserId:     uint32(user.ID),
+		UserId:     user.ID,
 		Token:      token,
 	}
 	return
@@ -324,38 +307,51 @@ func checkPasswordHash(ctx context.Context, password, hash string) bool {
 	return err == nil
 }
 
-func getToken(ctx context.Context, userId uint32) string {
+func getToken(ctx context.Context, userId uint32) (string, error) {
 	return cached.GetWithFunc(ctx, "U2T"+strconv.FormatUint(uint64(userId), 10),
-		func(ctx context.Context, key string) string {
+		func(ctx context.Context, key string) (string, error) {
 			span := trace.SpanFromContext(ctx)
 			token := uuid.New().String()
 			span.SetAttributes(attribute.String("token", token))
 			cached.Write(ctx, "T2U"+token, strconv.FormatUint(uint64(userId), 10), true)
-			return token
+			return token, nil
 		})
 }
 
-func hasToken(ctx context.Context, token string) (string, bool) {
+func hasToken(ctx context.Context, token string) (string, bool, error) {
 	return cached.Get(ctx, "T2U"+token)
 }
 
-func isUserVerifiedInRedis(ctx context.Context, username string, password string) bool {
-	pass, ok := cached.Get(ctx, "UserLog"+username)
+func isUserVerifiedInRedis(ctx context.Context, username string, password string) (bool, error) {
+	pass, ok, err := cached.Get(ctx, "UserLog"+username)
+
+	if err != nil {
+		return false, nil
+	}
+
 	if !ok {
-		return false
+		return false, nil
 	}
 
 	if checkPasswordHash(ctx, password, pass) {
-		return true
+		return true, nil
 	}
-	return false
+
+	return false, nil
 }
 
-func setUserInfoToRedis(ctx context.Context, username string, password string) {
-	if _, ok := cached.Get(ctx, "UserLog"+username); ok {
+func setUserInfoToRedis(ctx context.Context, username string, password string) error {
+	_, ok, err := cached.Get(ctx, "UserLog"+username)
+
+	if err != nil {
+		return err
+	}
+
+	if ok {
 		cached.TagDelete(ctx, "UserLog"+username)
 	}
 	cached.Write(ctx, "UserLog"+username, password, true)
+	return nil
 }
 
 func getAvatarByEmail(ctx context.Context, email string) string {
