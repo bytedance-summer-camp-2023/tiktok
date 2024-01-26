@@ -17,6 +17,7 @@ import (
 	"tiktok/src/gateway/middleware"
 	publish2 "tiktok/src/gateway/publish"
 	"tiktok/src/utils/logging"
+	"time"
 )
 
 func main() {
@@ -41,6 +42,7 @@ func main() {
 	// Configure Tracing
 	g.Use(otelgin.Middleware(config.WebServiceName))
 	g.Use(middleware.TokenAuthMiddleware())
+	g.Use(middleware.RateLimiterMiddleWare(time.Second, 100, 100))
 
 	// Configure Pyroscope
 	profiling.InitPyroscope("TikTok.GateWay")

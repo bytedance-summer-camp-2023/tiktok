@@ -11,6 +11,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/hashicorp/consul/api v1.20.0
 	github.com/joho/godotenv v1.5.1
+	github.com/juju/ratelimit v1.0.2
 	github.com/mbobakov/grpc-consul-resolver v1.5.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pyroscope-io/client v0.7.2
