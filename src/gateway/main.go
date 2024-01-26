@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -15,10 +14,8 @@ import (
 	"tiktok/src/gateway/auth"
 	comment2 "tiktok/src/gateway/comment"
 	feed2 "tiktok/src/gateway/feed"
-	message2 "tiktok/src/gateway/message"
 	"tiktok/src/gateway/middleware"
 	publish2 "tiktok/src/gateway/publish"
-	relation2 "tiktok/src/gateway/relation"
 	"tiktok/src/utils/logging"
 )
 
@@ -59,8 +56,8 @@ func main() {
 	rootPath := g.Group("/douyin")
 	user := rootPath.Group("/user")
 	{
-		user.POST("/login", auth.LoginHandle)
-		user.POST("/register", auth.RegisterHandle)
+		user.POST("/login/", auth.LoginHandle)
+		user.POST("/register/", auth.RegisterHandle)
 	}
 	feed := rootPath.Group("/feed")
 	{
@@ -72,27 +69,27 @@ func main() {
 		comment.GET("/list", comment2.ListCommentHandler)
 		comment.GET("/count", comment2.CountCommentHandler)
 	}
-	//todo
-	message := rootPath.Group("/message")
-	{
-		message.GET("/chat", message2.ListMessageHandler)
-		message.POST("/action", message2.ActionMessageHandler)
-		fmt.Println(message)
-	}
+	////todo
+	//message := rootPath.Group("/message")
+	//{
+	//	message.GET("/chat", message2.ListMessageHandler)
+	//	message.POST("/action", message2.ActionMessageHandler)
+	//	fmt.Println(message)
+	//}
 
-	relation := rootPath.Group("/relation")
-	{
-		//todo: frontend
-		//relation.POST("/action", relation2.ActionHandler)
-		relation.POST("/follow", relation2.FollowHandler)
-		relation.POST("/unfollow", relation2.UnfollowHandler)
-		relation.GET("/follow/list", relation2.GetFollowListHandler)
-		relation.GET("/follower/list", relation2.GetFollowerListHandler)
-		relation.GET("/friend/list", relation2.GetFriendListHandler)
-		relation.GET("/follow/count", relation2.CountFollowHandler)
-		relation.GET("/follower/count", relation2.CountFollowerHandler)
-		relation.GET("/isFollow", relation2.IsFollowHandler)
-	}
+	//relation := rootPath.Group("/relation")
+	//{
+	//	//todo: frontend
+	//	//relation.POST("/action", relation2.ActionHandler)
+	//	relation.POST("/follow", relation2.FollowHandler)
+	//	relation.POST("/unfollow", relation2.UnfollowHandler)
+	//	relation.GET("/follow/list", relation2.GetFollowListHandler)
+	//	relation.GET("/follower/list", relation2.GetFollowerListHandler)
+	//	relation.GET("/friend/list", relation2.GetFriendListHandler)
+	//	relation.GET("/follow/count", relation2.CountFollowHandler)
+	//	relation.GET("/follower/count", relation2.CountFollowerHandler)
+	//	relation.GET("/isFollow", relation2.IsFollowHandler)
+	//}
 	publish := rootPath.Group("/publish")
 	{
 		//publish.POST("/action", publish2.ActionPublishHandle)
