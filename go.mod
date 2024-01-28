@@ -3,8 +3,6 @@ module tiktok
 go 1.20
 
 require (
-	github.com/caarlos0/env/v6 v6.10.1
-	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-contrib/gzip v0.0.6
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis_rate/v10 v10.0.1
@@ -18,6 +16,7 @@ require (
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
 	github.com/redis/go-redis/v9 v9.1.0
+	github.com/sashabaranov/go-openai v1.19.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/zsais/go-gin-prometheus v0.1.0

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
 	log "github.com/sirupsen/logrus"
@@ -37,6 +36,7 @@ type envConfig struct {
 	RabbitMQAddr          string `env:"RABBITMQ_ADDRESS" envDefault:"localhost"`
 	RabbitMQPort          string `env:"RABBITMQ_PORT" envDefault:"5672"`
 	RabbitMQVhostPrefix   string `env:"RABBITMQ_VHOST_PREFIX" envDefault:""`
+	ChatGPTAPIKEYS        string `env:"CHATGPT_API_KEYS"`
 }
 
 func init() {
