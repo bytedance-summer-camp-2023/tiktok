@@ -19,6 +19,7 @@ import (
 	"tiktok/src/storage/redis"
 	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
+	"time"
 )
 
 var userClient user.UserServiceClient
@@ -26,6 +27,10 @@ var userClient user.UserServiceClient
 var actionCommentLimitKeyPrefix = config.EnvCfg.RedisPrefix + "comment_freq_limit"
 
 const actionCommentMaxQPS = 3 // Maximum ActionComment query amount of an actor per second
+
+var rateCommentLimitKey = config.EnvCfg.RedisPrefix + "rate_comment_freq_limit"
+
+const rateCommentMaxQPM = 3 // Maximum RateComment query amount
 
 // Return redis key to record the amount of ActionComment query of an actor, e.g., comment_freq_limit-1-1669524458
 func actionCommentLimitKey(userId uint32) string {
@@ -162,6 +167,7 @@ func (c CommentServiceImpl) ListComment(ctx context.Context, request *comment.Li
 	result := database.Client.WithContext(ctx).
 		Where("video_id = ?", request.VideoId).
 		Where("rate <= 3").
+		//Where("moderation_flagged = false").
 		Order("created_at desc").
 		Find(&pCommentList)
 	if result.Error != nil {
@@ -203,7 +209,6 @@ func (c CommentServiceImpl) ListComment(ctx context.Context, request *comment.Li
 				err = getUserErr
 			}
 			userMap[userId] = userResponse.User
-			wg.Done()
 		}(userId)
 	}
 	wg.Wait()
@@ -259,7 +264,6 @@ func (c CommentServiceImpl) CountComment(ctx context.Context, request *comment.C
 			return strconv.FormatInt(rCount, 10), err
 		})
 
-	rCount, err := strconv.ParseUint(countString, 10, 64)
 	if err != nil {
 		cached.TagDelete(ctx, "CommentCount")
 		logger.WithFields(logrus.Fields{
@@ -274,6 +278,7 @@ func (c CommentServiceImpl) CountComment(ctx context.Context, request *comment.C
 		}
 		return
 	}
+	rCount, _ := strconv.ParseUint(countString, 10, 64)
 
 	resp = &comment.CountCommentResponse{
 		StatusCode:   strings.ServiceOKCode,
@@ -308,7 +313,10 @@ func addComment(ctx context.Context, logger *logrus.Entry, span trace.Span, pUse
 		}
 		return
 	}
+
+	// Rate comment
 	go rateComment(logger, span, pCommentText, rComment.ID)
+
 	resp = &comment.ActionCommentResponse{
 		StatusCode: strings.ServiceOKCode,
 		StatusMsg:  strings.ServiceOK,
@@ -373,7 +381,33 @@ func deleteComment(ctx context.Context, logger *logrus.Entry, span trace.Span, p
 }
 
 func rateComment(logger *logrus.Entry, span trace.Span, commentContent string, commentID uint32) {
-	rate, reason := RateCommentByGPT(commentContent, logger, span)
+
+	rate := uint32(0)
+	reason := ""
+
+	limiter := redis_rate.NewLimiter(redis.Client)
+	limiterKey := rateCommentLimitKey
+	for {
+		limiterRes, err := limiter.Allow(context.Background(), limiterKey, redis_rate.PerMinute(rateCommentMaxQPM))
+		if err != nil {
+			logger.WithFields(logrus.Fields{
+				"err":             err,
+				"comment_id":      commentID,
+				"comment_content": commentContent,
+			}).Errorf("RateComment limiter error")
+			logging.SetSpanError(span, err)
+			break
+		}
+
+		if limiterRes.Allowed != 0 {
+			rate, reason, _ = RateCommentByGPT(commentContent, logger, span)
+			break
+		}
+		logger.WithFields(logrus.Fields{
+			"comment_id": commentID,
+		}).Debugf("Wait for ChatGPT API rate limit.")
+		time.Sleep(20 * time.Second)
+	}
 
 	rComment := models.Comment{
 		ID:     commentID,
@@ -393,6 +427,7 @@ func rateComment(logger *logrus.Entry, span trace.Span, commentContent string, c
 		"comment_id": commentID,
 		"rate":       rate,
 		"reason":     reason,
+		//"flagged":    rComment.ModerationFlagged,
 	}).Debugf("Add comment rate successfully.")
 }
 
@@ -404,6 +439,7 @@ func count(ctx context.Context, videoId uint32) (count int64, err error) {
 	result := database.Client.Model(&models.Comment{}).WithContext(ctx).
 		Where("video_id = ?", videoId).
 		Where("rate <= 3").
+		//Where("moderation_flagged = false").
 		Count(&count)
 
 	if result.Error != nil {
