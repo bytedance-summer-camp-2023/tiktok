@@ -2,6 +2,7 @@ package file
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"tiktok/src/constant/config"
 )
@@ -31,6 +32,8 @@ func GetLocalPath(ctx context.Context, fileName string) string {
 	return client.GetLocalPath(ctx, fileName)
 }
 
-func GetLink(ctx context.Context, fileName string) (link string, err error) {
-	return client.GetLink(ctx, fileName)
+func GetLink(ctx context.Context, fileName string, userId uint32) (link string, err error) {
+	originLink, err := client.GetLink(ctx, fileName)
+	link = fmt.Sprintf("%s?user_id=%d", originLink, userId)
+	return
 }
