@@ -1,12 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
-	"os"
 	"os/exec"
 	"sync"
 	"tiktok/src/constant/config"
@@ -191,21 +190,28 @@ func extractVideoCover(ctx context.Context, video *models.RawVideo) error {
 	RawFileName := video.FileName
 	CoverFileName := video.CoverName
 	RawFilePath := file.GetLocalPath(ctx, RawFileName)
-	CoverFilePath := file.GetLocalPath(ctx, CoverFileName)
 	cmdArgs := []string{
-		"-i", RawFilePath,
-		"-ss", "00:00:01",
-		"-vframes", "1",
-		CoverFilePath,
+		"-i", RawFilePath, "-vframes", "1", "-an", "-f", "image2pipe", "-",
 	}
 	cmd := exec.Command("ffmpeg", cmdArgs...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// Create a bytes.Buffer to capture stdout
+	var buf bytes.Buffer
+	cmd.Stdout = &buf
+
 	err := cmd.Run()
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			"err": err,
-		}).Warnf("failed to get video cover")
+		}).Warnf("cmd.Run() failed with %s\n", err)
+		logging.SetSpanError(span, err)
+		return err
+	}
+	// buf.Bytes() now contains the image data. You can use it to write to a file or send it to an output stream.
+	_, err = file.Upload(ctx, CoverFileName, bytes.NewReader(buf.Bytes()))
+	if err != nil {
+		logger.WithFields(logrus.Fields{
+			"err": err,
+		}).Warnf("failed to upload video cover")
 		logging.SetSpanError(span, err)
 		return err
 	}
@@ -220,20 +226,33 @@ func addWatermarkToVideo(ctx context.Context, video *models.RawVideo) error {
 	RawFileName := video.FileName
 	FinalFileName := pathgen.GenerateFinalVideoName(video.ActorId, video.Title, video.VideoId)
 	RawFilePath := file.GetLocalPath(ctx, RawFileName)
-	FinalFilePath := file.GetLocalPath(ctx, FinalFileName)
 	cmdArgs := []string{
 		"-i", RawFilePath,
-		"-vf", fmt.Sprintf("drawtext=text='%s':x=(w-text_w-10):y=10:fontsize=24:fontcolor=white", video.Title),
-		FinalFilePath,
+		"-vf", "drawtext=text=" + video.Title + ":x=(w-text_w-10):y=10:fontsize=24:fontcolor=white",
+		"-c:v", "copy",
+		"-f", "mp4",
+		"-",
 	}
+
 	cmd := exec.Command("ffmpeg", cmdArgs...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	var buf bytes.Buffer
+	cmd.Stdout = &buf
+
+	// Execute the command
 	err := cmd.Run()
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			"err": err,
-		}).Warnf("failed to add video watermark")
+		}).Warnf("cmd.Run() failed with %s\n", err)
+		logging.SetSpanError(span, err)
+	}
+
+	// Write the captured stdout to a file
+	_, err = file.Upload(ctx, FinalFileName, bytes.NewReader(buf.Bytes()))
+	if err != nil {
+		logger.WithFields(logrus.Fields{
+			"err": err,
+		}).Warnf("failed to upload video with watermark")
 		logging.SetSpanError(span, err)
 		return err
 	}
