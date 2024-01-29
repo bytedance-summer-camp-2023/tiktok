@@ -40,6 +40,10 @@ const (
 	RelationNotFoundError            = "未关注该用户"
 	PublishServiceInnerErrorCode     = 50015
 	PublishServiceInnerError         = "发布服务出现内部错误，请稍后重试！"
+	UnableToAddMessageErrorCode      = 50009
+	UnableToAddMessageRrror          = "发送消息出错"
+	UnableToQueryMessageErrorCode    = 50010
+	UnableToQueryMessageError        = "查消息出错"
 )
 
 // Expected Error

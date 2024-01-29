@@ -21,10 +21,10 @@ const PublishRpcServerPort = ":37005"
 const FavoriteRpcServerName = "TikTok-FavoriteService"
 const FavoriteRpcServerPort = ":37006"
 
+const MessageRpcServerName = "TikTok-MessageService"
+const MessageRpcServerPort = ":37007"
+
 const RelationRpcServerName = "TikTok-RelationService"
 const RelationRpcServerPort = ":37008"
-
-const MessageRpcServerName = "TikTok-MessageService"
-const MessageRpcServerPort = ":37010"
 
 const VideoPicker = "TikTok-VideoPicker"

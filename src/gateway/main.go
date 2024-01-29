@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -14,6 +15,7 @@ import (
 	"tiktok/src/gateway/auth"
 	comment2 "tiktok/src/gateway/comment"
 	feed2 "tiktok/src/gateway/feed"
+	message2 "tiktok/src/gateway/message"
 	"tiktok/src/gateway/middleware"
 	publish2 "tiktok/src/gateway/publish"
 	"tiktok/src/utils/logging"
@@ -71,13 +73,12 @@ func main() {
 		comment.GET("/list", comment2.ListCommentHandler)
 		comment.GET("/count", comment2.CountCommentHandler)
 	}
-	////todo
-	//message := rootPath.Group("/message")
-	//{
-	//	message.GET("/chat", message2.ListMessageHandler)
-	//	message.POST("/action", message2.ActionMessageHandler)
-	//	fmt.Println(message)
-	//}
+	message := rootPath.Group("/message")
+	{
+		message.GET("/chat", message2.ListMessageHandler)
+		message.POST("/action", message2.ActionMessageHandler)
+		fmt.Println(message)
+	}
 
 	//relation := rootPath.Group("/relation")
 	//{

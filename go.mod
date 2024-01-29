@@ -3,6 +3,7 @@ module tiktok
 go 1.20
 
 require (
+	github.com/caarlos0/env/v6 v6.10.1
 	github.com/gin-contrib/gzip v0.0.6
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis_rate/v10 v10.0.1
