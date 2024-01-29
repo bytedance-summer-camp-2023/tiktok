@@ -95,7 +95,7 @@ func main() {
 	//}
 	publish := rootPath.Group("/publish")
 	{
-		//publish.POST("/action", publish2.ActionPublishHandle)
+		publish.POST("/action", publish2.ActionPublishHandle)
 		publish.GET("/list", publish2.ListPublishHandle)
 	}
 	// Run Server
