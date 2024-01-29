@@ -1,5 +1,7 @@
 package strings
 
 const (
-	VideoPicker = "video_picker"
+	VideoExchange = "video_exchange"
+	VideoPicker   = "video_picker"
+	VideoSummary  = "video_summary"
 )
