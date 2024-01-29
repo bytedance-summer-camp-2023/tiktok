@@ -218,7 +218,7 @@ func queryDetailed(
 		// fill cover url
 		go func(i int, v *models.Video) {
 			defer wg.Done()
-			coverUrl, localErr := file.GetLink(ctx, v.CoverName)
+			coverUrl, localErr := file.GetLink(ctx, v.CoverName, v.UserId)
 			if localErr != nil {
 				logger.WithFields(logrus.Fields{
 					"video_id":   v.ID,
