@@ -24,13 +24,16 @@ func ActionMessageHandler(c *gin.Context) {
 	var req models.SMessageReq
 	_, span := tracing.Tracer.Start(c.Request.Context(), "ActionMessageHandler")
 	defer span.End()
-	logger := logging.LogService("GateWay.ActionMessage").WithContext(c.Request.Context())
+	logger := logging.LogService("GateWay.ActionChat").WithContext(c.Request.Context())
 
 	if err := c.ShouldBindQuery(&req); err != nil {
 		logger.WithFields(logrus.Fields{
 			//"CreateTime": req.Create_time,
-			"err": err,
-		}).Warnf("Error when trying to bind query")
+			"ActorId": req.ActorId,
+			"from_id": req.UserId,
+			"err":     err,
+		}).Errorf("Error when trying to bind query")
+
 		c.JSON(http.StatusOK, models.ActionCommentRes{
 			StatusCode: strings.GateWayParamsErrorCode,
 			StatusMsg:  strings.GateWayParamsError,
@@ -43,24 +46,23 @@ func ActionMessageHandler(c *gin.Context) {
 
 	res, err = Client.ChatAction(c.Request.Context(), &chat.ActionRequest{
 		ActorId:    uint32(req.ActorId),
-		UserId:     uint32(req.User_id),
+		UserId:     uint32(req.UserId),
 		ActionType: uint32(req.Action_type),
 		Content:    req.Content,
 	})
 
 	if err != nil {
 		logger.WithFields(logrus.Fields{
-			"actor_id": req.ActorId,
-			"content":  req.Content,
-		}).Warnf("Error when trying to connect with ActionMessageHandler")
+			"ActorId": req.ActorId,
+			"content": req.Content,
+		}).Error("Error when trying to connect with ActionMessageHandler")
 
-		//这个位置返回状态是不是有问题？
-		c.JSON(http.StatusOK, res)
+		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 	logger.WithFields(logrus.Fields{
-		"actor_id": req.ActorId,
-		"content":  req.Content,
+		"ActorId": req.ActorId,
+		"content": req.Content,
 	}).Infof("Action send message success")
 
 	c.JSON(http.StatusOK, res)
@@ -88,16 +90,16 @@ func ListMessageHandler(c *gin.Context) {
 
 	if err != nil {
 		logger.WithFields(logrus.Fields{
-			"actor_id": req.ActorId,
-			"user_id":  req.UserId,
-		}).Warnf("Error when trying to connect with ListMessageHandler")
+			"ActorId": req.ActorId,
+			"user_id": req.UserId,
+		}).Error("Error when trying to connect with ListMessageHandler")
 		c.JSON(http.StatusOK, res)
 		return
 	}
 
 	logger.WithFields(logrus.Fields{
-		"actor_id": req.ActorId,
-		"user_id":  req.UserId,
+		"ActorId": req.ActorId,
+		"user_id": req.UserId,
 	}).Infof("List comment success")
 
 	c.JSON(http.StatusOK, res)
