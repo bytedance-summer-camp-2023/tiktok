@@ -16,7 +16,7 @@ import (
 	"tiktok/src/utils/logging"
 )
 
-var UserClient user.UserServiceClient
+var userClient user.UserServiceClient
 
 type MessageServiceImpl struct {
 	chat.ChatServiceServer
@@ -24,7 +24,7 @@ type MessageServiceImpl struct {
 
 func init() {
 	userRpcConn := grpc2.Connect(config.UserRpcServerName)
-	UserClient = user.NewUserServiceClient(userRpcConn)
+	userClient = user.NewUserServiceClient(userRpcConn)
 }
 
 func (c MessageServiceImpl) ChatAction(ctx context.Context, request *chat.ActionRequest) (res *chat.ActionResponse, err error) {
@@ -39,7 +39,7 @@ func (c MessageServiceImpl) ChatAction(ctx context.Context, request *chat.Action
 		"content_text": request.Content,
 	}).Debugf("Process start")
 
-	userResponse, err := UserClient.GetUserInfo(ctx, &user.UserRequest{
+	userResponse, err := userClient.GetUserInfo(ctx, &user.UserRequest{
 		ActorId: request.ActorId,
 		UserId:  request.UserId,
 	})

@@ -158,8 +158,6 @@ func Consume(channel *amqp.Channel) {
 			}).Errorf("Error when adding watermark to video.")
 			logging.SetSpanError(span, err)
 		}
-		//todo: update封面
-
 		// 保存到数据库
 		finalFileName := pathgen.GenerateFinalVideoName(raw.ActorId, raw.Title, raw.VideoId)
 		video := &models.Video{

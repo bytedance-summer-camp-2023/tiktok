@@ -33,7 +33,7 @@ func main() {
 	}()
 
 	// Configure Pyroscope
-	profiling.InitPyroscope("GuGoTik.FeedService")
+	profiling.InitPyroscope("TikTok.FeedService")
 
 	s := grpc.NewServer(
 		grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),

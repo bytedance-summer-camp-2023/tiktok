@@ -31,25 +31,37 @@ var conn *amqp.Connection
 
 var channel *amqp.Channel
 
-var queue amqp.Queue
-
 var FeedClient feed.FeedServiceClient
+
+func exitOnError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
 
 func init() {
 	FeedRpcConn := grpc2.Connect(config.FeedRpcServerName)
 	FeedClient = feed.NewFeedServiceClient(FeedRpcConn)
 	var err error
+
 	conn, err = amqp.Dial(rabbitmq.BuildMQConnAddr())
-	if err != nil {
-		panic(err)
-	}
+	exitOnError(err)
 
 	channel, err = conn.Channel()
-	if err != nil {
-		panic(err)
-	}
+	exitOnError(err)
 
-	queue, err = channel.QueueDeclare(
+	err = channel.ExchangeDeclare(
+		strings.VideoExchange,
+		"fanout",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	exitOnError(err)
+
+	_, err = channel.QueueDeclare(
 		strings.VideoPicker, //视频信息采集(封面/水印)
 		true,
 		false,
@@ -57,9 +69,35 @@ func init() {
 		false,
 		nil,
 	)
-	if err != nil {
-		panic(err)
-	}
+	exitOnError(err)
+
+	_, err = channel.QueueDeclare(
+		strings.VideoSummary,
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	exitOnError(err)
+
+	err = channel.QueueBind(
+		strings.VideoPicker,
+		"",
+		strings.VideoExchange,
+		false,
+		nil,
+	)
+	exitOnError(err)
+
+	err = channel.QueueBind(
+		strings.VideoSummary,
+		"",
+		strings.VideoExchange,
+		false,
+		nil,
+	)
+	exitOnError(err)
 }
 
 func (a PublishServiceImpl) ListVideo(ctx context.Context, req *publish.ListVideoRequest) (resp *publish.ListVideoResponse, err error) {
@@ -87,7 +125,7 @@ func (a PublishServiceImpl) ListVideo(ctx context.Context, req *publish.ListVide
 	for _, video := range videos {
 		videoIds = append(videoIds, video.ID)
 	}
-	//todo: go func
+
 	queryVideoResp, err := FeedClient.QueryVideos(ctx, &feed.QueryVideosRequest{
 		ActorId:  req.ActorId,
 		VideoIds: videoIds,
@@ -213,6 +251,7 @@ func (a PublishServiceImpl) CreateVideo(ctx context.Context, request *publish.Cr
 		}).Errorf("Error when updating rawVideo information to database")
 		logging.SetSpanError(span, result.Error)
 	}
+
 	marshal, err := json.Marshal(raw)
 	if err != nil {
 		resp = &publish.CreateVideoResponse{
@@ -225,7 +264,7 @@ func (a PublishServiceImpl) CreateVideo(ctx context.Context, request *publish.Cr
 	// Context 注入到 RabbitMQ 中
 	headers := rabbitmq.InjectAMQPHeaders(ctx)
 
-	err = channel.Publish("", queue.Name, false, false,
+	err = channel.Publish(strings.VideoExchange, "", false, false,
 		amqp.Publishing{
 			DeliveryMode: amqp.Persistent,
 			ContentType:  "text/plain",
