@@ -8,15 +8,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"math/rand"
 	"net/http"
-	"tiktok/src/constant/config"
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
 	"tiktok/src/models"
-	"tiktok/src/rpc/feed"
 	"tiktok/src/rpc/publish"
 	database "tiktok/src/storage/db"
 	"tiktok/src/storage/file"
-	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
 	"tiktok/src/utils/pathgen"
 	"tiktok/src/utils/rabbitmq"
@@ -31,7 +28,7 @@ var conn *amqp.Connection
 
 var channel *amqp.Channel
 
-var FeedClient feed.FeedServiceClient
+//var FeedClient feed.FeedServiceClient
 
 func exitOnError(err error) {
 	if err != nil {
@@ -40,8 +37,8 @@ func exitOnError(err error) {
 }
 
 func init() {
-	FeedRpcConn := grpc2.Connect(config.FeedRpcServerName)
-	FeedClient = feed.NewFeedServiceClient(FeedRpcConn)
+	//FeedRpcConn := grpc2.Connect(config.FeedRpcServerName)
+	//FeedClient = feed.NewFeedServiceClient(FeedRpcConn)
 	var err error
 
 	conn, err = amqp.Dial(rabbitmq.BuildMQConnAddr())
@@ -126,10 +123,10 @@ func (a PublishServiceImpl) ListVideo(ctx context.Context, req *publish.ListVide
 		videoIds = append(videoIds, video.ID)
 	}
 
-	queryVideoResp, err := FeedClient.QueryVideos(ctx, &feed.QueryVideosRequest{
-		ActorId:  req.ActorId,
-		VideoIds: videoIds,
-	})
+	//queryVideoResp, err := FeedClient.QueryVideos(ctx, &feed.QueryVideosRequest{
+	//	ActorId:  req.ActorId,
+	//	VideoIds: videoIds,
+	//})
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			"err": err,
@@ -148,7 +145,7 @@ func (a PublishServiceImpl) ListVideo(ctx context.Context, req *publish.ListVide
 	resp = &publish.ListVideoResponse{
 		StatusCode: strings.ServiceOKCode,
 		StatusMsg:  strings.ServiceOK,
-		VideoList:  queryVideoResp.VideoList,
+		VideoList:  nil, //queryVideoResp.VideoList,
 	}
 	return
 }
@@ -271,6 +268,13 @@ func (a PublishServiceImpl) CreateVideo(ctx context.Context, request *publish.Cr
 			Body:         marshal,
 			Headers:      headers,
 		})
+	if err != nil {
+		resp = &publish.CreateVideoResponse{
+			StatusCode: strings.VideoServiceInnerErrorCode,
+			StatusMsg:  strings.VideoServiceInnerError,
+		}
+		return
+	}
 
 	resp = &publish.CreateVideoResponse{
 		StatusCode: strings.ServiceOKCode,
