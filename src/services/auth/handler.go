@@ -24,6 +24,10 @@ import (
 	"tiktok/src/utils/logging"
 )
 
+func (a AuthServiceImpl) New() {
+
+}
+
 type AuthServiceImpl struct {
 	auth.AuthServiceServer
 }

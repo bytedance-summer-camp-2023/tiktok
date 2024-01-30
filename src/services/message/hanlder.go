@@ -22,7 +22,7 @@ type MessageServiceImpl struct {
 	chat.ChatServiceServer
 }
 
-func init() {
+func (s MessageServiceImpl) New() {
 	userRpcConn := grpc2.Connect(config.UserRpcServerName)
 	userClient = user.NewUserServiceClient(userRpcConn)
 }

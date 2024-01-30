@@ -24,7 +24,7 @@ var relationClient relation.RelationServiceClient
 
 var publishClient publish.PublishServiceClient
 
-func init() {
+func (s UserServiceImpl) New() {
 	relationConn := grpc2.Connect(config.RelationRpcServerName)
 	relationClient = relation.NewRelationServiceClient(relationConn)
 
