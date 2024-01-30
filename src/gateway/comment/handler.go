@@ -8,6 +8,7 @@ import (
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/models"
+	"tiktok/src/gateway/utils"
 
 	"tiktok/src/rpc/comment"
 	grpc2 "tiktok/src/utils/grpc"
@@ -58,7 +59,7 @@ func ActionCommentHandler(c *gin.Context) {
 			"video_id": req.VideoId,
 			"actor_id": req.ActorId,
 		}).Warnf("Error when trying to connect with ActionCommentService")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 
@@ -67,7 +68,7 @@ func ActionCommentHandler(c *gin.Context) {
 		"actor_id": req.ActorId,
 	}).Infof("Action comment success")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
 
 func ListCommentHandler(c *gin.Context) {
@@ -93,7 +94,7 @@ func ListCommentHandler(c *gin.Context) {
 			"video_id": req.VideoId,
 			"actor_id": req.ActorId,
 		}).Warnf("Error when trying to connect with ListCommentService")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 
@@ -102,7 +103,7 @@ func ListCommentHandler(c *gin.Context) {
 		"actor_id": req.ActorId,
 	}).Infof("List comment success")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
 
 func CountCommentHandler(c *gin.Context) {
@@ -128,7 +129,7 @@ func CountCommentHandler(c *gin.Context) {
 			"video_id": req.VideoId,
 			"actor_id": req.ActorId,
 		}).Warnf("Error when trying to connect with CountCommentService")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 
@@ -137,5 +138,5 @@ func CountCommentHandler(c *gin.Context) {
 		"actor_id": req.ActorId,
 	}).Infof("Count comment success")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }

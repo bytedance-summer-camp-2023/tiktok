@@ -9,6 +9,7 @@ import (
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/models"
+	"tiktok/src/gateway/utils"
 	"tiktok/src/rpc/auth"
 	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
@@ -40,7 +41,7 @@ func LoginHandle(c *gin.Context) {
 		logger.WithFields(logrus.Fields{
 			"Username": req.UserName,
 		}).Warnf("Error when trying to connect with AuthService")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 
@@ -50,7 +51,7 @@ func LoginHandle(c *gin.Context) {
 		"UserId":   res.UserId,
 	}).Infof("User log in")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
 
 func RegisterHandle(c *gin.Context) {
@@ -78,7 +79,7 @@ func RegisterHandle(c *gin.Context) {
 		logger.WithFields(logrus.Fields{
 			"Username": req.UserName,
 		}).Warnf("Error when trying to connect with AuthService")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 
@@ -88,7 +89,7 @@ func RegisterHandle(c *gin.Context) {
 		"UserId":   res.UserId,
 	}).Infof("User register in")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
 
 func init() {

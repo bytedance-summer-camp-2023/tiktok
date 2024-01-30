@@ -10,6 +10,7 @@ import (
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/models"
+	"tiktok/src/gateway/utils"
 	"tiktok/src/rpc/publish"
 	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
@@ -43,7 +44,7 @@ func ListPublishHandle(c *gin.Context) {
 		logger.WithFields(logrus.Fields{
 			"UserId": req.UserId,
 		}).Warnf("Error when trying to connect with PublishService")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 	userId := req.UserId
@@ -51,7 +52,7 @@ func ListPublishHandle(c *gin.Context) {
 		"UserId": userId,
 	}).Infof("Publish List videos")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
 
 func paramValidate(c *gin.Context) (err error) {
@@ -135,11 +136,11 @@ func ActionPublishHandle(c *gin.Context) {
 		logger.WithFields(logrus.Fields{
 			"err": err,
 		}).Warnf("Error when trying to connect with CreateVideoService")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 	logger.WithFields(logrus.Fields{
 		"response": res,
 	}).Debugf("Create video success")
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }

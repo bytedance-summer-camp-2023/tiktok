@@ -8,6 +8,7 @@ import (
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/models"
+	"tiktok/src/gateway/utils"
 	"tiktok/src/rpc/favorite"
 	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
@@ -47,7 +48,7 @@ func ActionFavoriteHandler(c *gin.Context) {
 			"VideoId":    req.VideoId,
 			"ActionType": req.ActionType,
 		}).Warnf("Error when trying to connect with ActionFavoriteService")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 
@@ -57,7 +58,7 @@ func ActionFavoriteHandler(c *gin.Context) {
 		"ActionType": req.ActionType,
 	}).Infof("Action favorite success")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
 
 func ListFavoriteHandler(c *gin.Context) {
@@ -83,7 +84,7 @@ func ListFavoriteHandler(c *gin.Context) {
 			"ActorId": req.ActorId,
 			"UserId":  req.UserId,
 		}).Warnf("Error when trying to connect with ListFavoriteHandler")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 
@@ -92,5 +93,5 @@ func ListFavoriteHandler(c *gin.Context) {
 		"UserId":  req.UserId,
 	}).Infof("List favorite videos success")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }

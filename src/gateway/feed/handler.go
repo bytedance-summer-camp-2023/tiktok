@@ -8,6 +8,7 @@ import (
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/models"
+	"tiktok/src/gateway/utils"
 	"tiktok/src/rpc/feed"
 	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
@@ -55,7 +56,7 @@ func ListVideosHandle(c *gin.Context) {
 		"LatestTime": latestTime,
 		"res":        res,
 	}).Infof("Feed List videos")
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
 
 func init() {

@@ -8,6 +8,7 @@ import (
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
 	"tiktok/src/gateway/models"
+	"tiktok/src/gateway/utils"
 	"tiktok/src/rpc/chat"
 	grpc2 "tiktok/src/utils/grpc"
 	"tiktok/src/utils/logging"
@@ -65,7 +66,7 @@ func ActionMessageHandler(c *gin.Context) {
 		"content": req.Content,
 	}).Infof("Action send message success")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
 
 func ListMessageHandler(c *gin.Context) {
@@ -93,7 +94,7 @@ func ListMessageHandler(c *gin.Context) {
 			"ActorId": req.ActorId,
 			"user_id": req.UserId,
 		}).Error("Error when trying to connect with ListMessageHandler")
-		c.JSON(http.StatusOK, res)
+		c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 		return
 	}
 
@@ -102,5 +103,5 @@ func ListMessageHandler(c *gin.Context) {
 		"user_id": req.UserId,
 	}).Infof("List comment success")
 
-	c.JSON(http.StatusOK, res)
+	c.Render(http.StatusOK, utils.CustomJSON{Data: res, Context: c})
 }
