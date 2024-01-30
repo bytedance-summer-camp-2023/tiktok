@@ -10,14 +10,14 @@ import (
 )
 
 var client = &http.Client{}
-var baseUrl = "http://127.0.0.1:37000/douyin/comment"
+var commentBaseUrl = "http://127.0.0.1:37000/douyin/comment"
 
 func TestActionComment_Add(t *testing.T) {
-	url := baseUrl + "/action"
+	url := commentBaseUrl + "/action"
 	method := "POST"
 	req, err := http.NewRequest(method, url, nil)
 	q := req.URL.Query()
-	q.Add("token", "fb34f465-8eed-4ccf-8e5e-858fad54cb1c")
+	q.Add("token", token)
 	q.Add("actor_id", "1")
 	q.Add("video_id", "0")
 	q.Add("action_type", "1")
@@ -42,11 +42,11 @@ func TestActionComment_Add(t *testing.T) {
 }
 
 func TestActionComment_Delete(t *testing.T) {
-	url := baseUrl + "/action"
+	url := commentBaseUrl + "/action"
 	method := "POST"
 	req, err := http.NewRequest(method, url, nil)
 	q := req.URL.Query()
-	q.Add("token", "c8e50d04-ebc6-4c36-ad67-9b46a61a2197")
+	q.Add("token", token)
 	q.Add("actor_id", "1")
 	q.Add("video_id", "0")
 	q.Add("action_type", "2")
@@ -71,11 +71,11 @@ func TestActionComment_Delete(t *testing.T) {
 }
 
 func TestListComment(t *testing.T) {
-	url := baseUrl + "/list"
+	url := commentBaseUrl + "/list"
 	method := "GET"
 	req, err := http.NewRequest(method, url, nil)
 	q := req.URL.Query()
-	q.Add("token", "c8e50d04-ebc6-4c36-ad67-9b46a61a2197")
+	q.Add("token", token)
 	q.Add("actor_id", "1")
 	q.Add("video_id", "0")
 	req.URL.RawQuery = q.Encode()
@@ -98,11 +98,11 @@ func TestListComment(t *testing.T) {
 }
 
 func TestCountComment(t *testing.T) {
-	url := baseUrl + "/count"
+	url := commentBaseUrl + "/count"
 	method := "GET"
 	req, err := http.NewRequest(method, url, nil)
 	q := req.URL.Query()
-	q.Add("token", "c8e50d04-ebc6-4c36-ad67-9b46a61a2197")
+	q.Add("token", token)
 	q.Add("actor_id", "1")
 	q.Add("video_id", "0")
 	req.URL.RawQuery = q.Encode()
