@@ -15,7 +15,7 @@ import (
 	"tiktok/src/utils/logging"
 )
 
-var userClient user.UserServiceClient
+var UserClient user.UserServiceClient
 
 type MessageServiceImpl struct {
 	chat.ChatServiceServer
@@ -23,10 +23,10 @@ type MessageServiceImpl struct {
 
 func (s MessageServiceImpl) New() {
 	userRpcConn := grpc2.Connect(config.UserRpcServerName)
-	userClient = user.NewUserServiceClient(userRpcConn)
+	UserClient = user.NewUserServiceClient(userRpcConn)
 }
 
-func (c MessageServiceImpl) ChatAction(ctx context.Context, request *chat.ActionRequest) (res *chat.ActionResponse, err error) {
+func (s MessageServiceImpl) ChatAction(ctx context.Context, request *chat.ActionRequest) (res *chat.ActionResponse, err error) {
 	ctx, span := tracing.Tracer.Start(ctx, "ChatActionService")
 	defer span.End()
 	logger := logging.LogService("ChatService.ActionMessage").WithContext(ctx)
@@ -38,7 +38,7 @@ func (c MessageServiceImpl) ChatAction(ctx context.Context, request *chat.Action
 		"content_text": request.Content,
 	}).Debugf("Process start")
 
-	userResponse, err := userClient.GetUserInfo(ctx, &user.UserRequest{
+	userResponse, err := UserClient.GetUserInfo(ctx, &user.UserRequest{
 		ActorId: request.ActorId,
 		UserId:  request.UserId,
 	})
@@ -63,11 +63,10 @@ func (c MessageServiceImpl) ChatAction(ctx context.Context, request *chat.Action
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			"err":          err,
-			"ActorId":      request.ActorId,
 			"user_id":      request.UserId,
 			"action_type":  request.ActionType,
 			"content_text": request.Content,
-		}).Errorf("database  error")
+		}).Errorf("database insert  error")
 		logging.SetSpanError(span, err)
 		return res, err
 	}
@@ -80,13 +79,14 @@ func (c MessageServiceImpl) ChatAction(ctx context.Context, request *chat.Action
 }
 
 // Chat(context.Context, *ChatRequest) (*ChatResponse, error)
-func (c MessageServiceImpl) Chat(ctx context.Context, request *chat.ChatRequest) (resp *chat.ChatResponse, err error) {
+func (s MessageServiceImpl) Chat(ctx context.Context, request *chat.ChatRequest) (resp *chat.ChatResponse, err error) {
 	ctx, span := tracing.Tracer.Start(ctx, "ChatService")
 	defer span.End()
 	logger := logging.LogService("ChatService.chat").WithContext(ctx)
 	logger.WithFields(logrus.Fields{
-		"user_id": request.UserId,
-		"ActorId": request.ActorId,
+		"user_id":      request.UserId,
+		"ActorId":      request.ActorId,
+		"pre_msg_time": request.PreMsgTime,
 	}).Debugf("Process start")
 	toUserId := request.UserId
 	fromUserId := request.ActorId
@@ -100,13 +100,16 @@ func (c MessageServiceImpl) Chat(ctx context.Context, request *chat.ChatRequest)
 	//TO DO 看怎么需要一下
 
 	var rMessageList []*chat.Message
-	result := database.Client.WithContext(ctx).Where("conversation_id=?", conversationId).
+	result := database.Client.WithContext(ctx).Where("conversation_id=? and  ", conversationId).
 		Order("created_at desc").Find(&rMessageList)
 
 	if result.Error != nil {
 		logger.WithFields(logrus.Fields{
-			"err": result.Error,
-		}).Errorf("ChatServiceImpl list chat failed to response when listing message")
+			"err":          result.Error,
+			"user_id":      request.UserId,
+			"ActorId":      request.ActorId,
+			"pre_msg_time": request.PreMsgTime,
+		}).Errorf("ChatServiceImpl list chat failed to response when listing message,database err")
 		logging.SetSpanError(span, err)
 
 		resp = &chat.ChatResponse{
@@ -146,6 +149,7 @@ func addMessage(ctx context.Context, fromUserId uint32, toUserId uint32, Context
 	result := database.Client.WithContext(ctx).Create(&message)
 
 	if result.Error != nil {
+
 		resp = &chat.ActionResponse{
 			StatusCode: strings.UnableToAddMessageErrorCode,
 			StatusMsg:  strings.UnableToAddMessageRrror,

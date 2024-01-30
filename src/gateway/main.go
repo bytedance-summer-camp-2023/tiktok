@@ -13,6 +13,7 @@ import (
 	"tiktok/src/gateway/about"
 	"tiktok/src/gateway/auth"
 	comment2 "tiktok/src/gateway/comment"
+	favorite2 "tiktok/src/gateway/favorite"
 	feed2 "tiktok/src/gateway/feed"
 	message2 "tiktok/src/gateway/message"
 	"tiktok/src/gateway/middleware"
@@ -99,6 +100,11 @@ func main() {
 	{
 		message.GET("/chat", message2.ListMessageHandler)
 		message.POST("/action", message2.ActionMessageHandler)
+	}
+	favorite := rootPath.Group("/favorite")
+	{
+		favorite.POST("/action", favorite2.ActionFavoriteHandler)
+		favorite.GET("/list", favorite2.ListFavoriteHandler)
 	}
 	// Run Server
 	if err := g.Run(config.WebServiceAddr); err != nil {
