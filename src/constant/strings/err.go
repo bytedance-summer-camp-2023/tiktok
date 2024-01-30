@@ -46,6 +46,8 @@ const (
 	RelationNotFoundError            = "未关注该用户"
 	StringToIntErrorCode             = 50018
 	StringToIntError                 = "字符串转数字失败"
+	RelationServiceIntErrorCode      = 50019
+	RelationServiceIntError          = "关系服务出现内部错误"
 )
 
 // Expected Error

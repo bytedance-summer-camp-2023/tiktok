@@ -35,7 +35,7 @@ func (s UserServiceImpl) New() {
 func (a UserServiceImpl) GetUserInfo(ctx context.Context, request *user.UserRequest) (resp *user.UserResponse, err error) {
 	ctx, span := tracing.Tracer.Start(ctx, "UserService-GetUserInfo")
 	defer span.End()
-	logger := logging.LogService("UserService.GetUserInfo").WithContext(ctx)
+	logger := logging.LogService("GetUserInfo").WithContext(ctx)
 
 	var userModel models.User
 	userModel.ID = request.UserId
@@ -149,6 +149,16 @@ func (a UserServiceImpl) GetUserInfo(ctx context.Context, request *user.UserRequ
 			}).Errorf("Error when user service get is follow")
 			isErr = true
 			return
+		}
+		if rResp != nil && rResp.StatusCode == strings.ServiceOKCode {
+			if err != nil {
+				logger.WithFields(logrus.Fields{
+					"errMsg": rResp.StatusMsg,
+					"userId": request.UserId,
+				}).Errorf("Error when user service get is follow")
+				isErr = true
+				return
+			}
 		}
 
 		resp.User.IsFollow = rResp.Result
