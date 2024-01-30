@@ -4,11 +4,9 @@ import (
 	"fmt"
 	capi "github.com/hashicorp/consul/api"
 	log "github.com/sirupsen/logrus"
-	"math/rand"
 	"strconv"
 	"tiktok/src/constant/config"
 	"tiktok/src/utils/logging"
-	"time"
 )
 
 var consulClient *capi.Client
@@ -49,40 +47,4 @@ func RegisterConsul(name string, port string) error {
 		return err
 	}
 	return nil
-}
-
-func ResolveService(serviceName string) (*capi.CatalogService, error) {
-	serviceName = config.EnvCfg.ConsulAnonymityPrefix + serviceName
-	for {
-		instances, err := getServiceInstances(serviceName)
-		if err != nil || len(instances) == 0 {
-			logging.Logger.Panicf("Cannot find service: %s", serviceName)
-		}
-
-		selectedInstance := roundRobin(instances)
-		if selectedInstance != nil {
-			return selectedInstance, nil
-		}
-		time.Sleep(time.Second)
-	}
-}
-
-func getServiceInstances(serviceName string) ([]*capi.CatalogService, error) {
-	services, _, err := consulClient.Catalog().Service(serviceName, "", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return services, nil
-}
-
-func roundRobin(instances []*capi.CatalogService) *capi.CatalogService {
-	if len(instances) == 0 {
-		return nil
-	}
-
-	rand.NewSource(time.Now().UnixNano())
-	index := rand.Intn(len(instances))
-
-	return instances[index]
 }
