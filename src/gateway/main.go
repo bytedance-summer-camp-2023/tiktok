@@ -18,6 +18,7 @@ import (
 	"tiktok/src/gateway/middleware"
 	publish2 "tiktok/src/gateway/publish"
 	relation2 "tiktok/src/gateway/relation"
+	user2 "tiktok/src/gateway/user"
 	"tiktok/src/utils/logging"
 	"time"
 )
@@ -60,6 +61,7 @@ func main() {
 	rootPath := g.Group("/douyin")
 	user := rootPath.Group("/user")
 	{
+		user.POST("/", user2.UserHandler)
 		user.POST("/login", auth.LoginHandle)
 		user.POST("/register", auth.RegisterHandle)
 	}

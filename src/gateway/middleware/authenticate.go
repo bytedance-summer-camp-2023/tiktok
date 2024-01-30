@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
+	"strconv"
 	"tiktok/src/constant/config"
 	"tiktok/src/constant/strings"
 	"tiktok/src/extra/tracing"
@@ -52,8 +53,9 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
+		c.Request.URL.RawQuery += "&actor_id=" + strconv.FormatUint(uint64(authenticate.UserId), 10)
 		c.Next()
+
 	}
 }
 
